@@ -1,7 +1,7 @@
 config = {
-"uri":"http://localhost:8888",
-"redirect_uri":"http://localhost:8888/login.html",
-"client_id":"[YOUR_TOKEN_HERE]",
+"uri":"https://ickc.github.io/SpotMyBackup/",
+"redirect_uri":"https://ickc.github.io/SpotMyBackup/login.html",
+"client_id":"d22a8316f27b4ebe8484adefd2f0774d",
 "slowdown_import": 100,
 "slowdown_export": 100
 };
