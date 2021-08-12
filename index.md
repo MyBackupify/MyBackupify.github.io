@@ -4,7 +4,7 @@ header-includes: |
     <script data-external="1" type="text/javascript" src="config.json"></script>
     <script data-external="1" type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script data-external="1" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
-    <link data-external="1" href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link data-external="1" href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 include-after: |
     <script type="text/javascript" src="smb.js"></script>
 ---
