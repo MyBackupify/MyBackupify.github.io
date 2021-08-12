@@ -1,771 +1,85 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="content-type" content="text/html" charset="UTF-8">
-        <title>SpotMyBackup</title>
-
-        <script type="text/javascript" src="config.json"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
-        <link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-
-        <style type='text/css'>
-            body {
-                padding: 0;
-                margin: 0;
-                font-family: 'Lato', sans-serif;
-                background: url(./gplaypattern.png) repeat;
-                background-size: 188px 178px;
-            }
-
-            .container {
-                width: 640px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .footer {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-            }
-
-            .heading {
-                color: #444;
-                font-size: 24px;
-                background-color: rgba(255,255,255,0.9);
-                border-bottom: solid 1px #eaeaea;
-                width: 100%;
-                z-index: 500;
-                padding: 12px;
-            }
-
-            .button-main {
-                font-size: 18px;
-                font-weight: 600;
-                line-height: 1.5;
-                color: #fff;
-                background-color: #2ebd59;
-                display: inline-block;
-                margin-bottom: 0;
-                text-align: center;
-                vertical-align: middle;
-                cursor: pointer;
-                background-image: none;
-                border: 1px solid transparent;
-                white-space: nowrap;
-                border-radius: 500px;
-                padding: 12px 47px 8px;
-                border-width: 0;
-                letter-spacing: 1.2px;
-                min-width: 130px;
-                text-transform: uppercase;
-                white-space: normal;
-                margin: 0 0 1em;
-            }
-            .button-big {
-                margin-left: 150px;
-            }
-            .button-medium {
-                margin-left: 80px;
-            }
-
-            .title-bold {
-                font-weight: bold; 
-                font-size: 44px;
-            }
-            .title-light {
-                font-weight: 300; 
-                color: #555;
-                font-size: 44px;
-            }
-            .title-medium {
-                font-weight: bold;
-                font-size: 18px;
-            }
-
-            .progress-bar {
-                width: 0%;
-                background-color: #86e01e;
-                position: relative;
-                height: 16px;
-                border-radius: 4px;
-                -webkit-transition: 0.4s linear;
-                -moz-transition: 0.4s linear;
-                -o-transition: 0.4s linear;
-                transition: 0.4s linear;
-                -webkit-transition-property: width, background-color;
-                -moz-transition-property: width, background-color;
-                -o-transition-property: width, background-color;
-                transition-property: width, background-color;
-                -webkit-box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
-                box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
-            }
-
-            .progress {
-                width: 100%;
-                padding: 4px;
-                margin-top: 10px;
-            }
-
-            .link {
-                font-size: 14px;
-                padding: 5px 15px;
-                color: #121F59;
-                text-decoration: none;
-            }
-            .link:hover {
-                color: #A2C852;
-            }
-        </style>
-    </head>
-    <body>
-        <a href="https://github.com/secuvera/SpotMyBackup/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/121cd7cbdc3e4855075ea8b558508b91ac463ac2/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png"></a>
-
-        <div class="container">
-            <div class="heading">
-                <span class="title-bold">Spot</span><span class="title-light">My</span><span class="title-bold">Backup</span>
-                <br/>
-                <br/>
-                <div id="pnlLoggedOut">
-                    <span><b>Export</b> your playlists and tracks setup into a file by a single click. <b>Import</b> the file to restore your setup at any time.</span>
-                    <br/>
-                    <br/>
-                    <button id="login" class="button-main button-big">Login with Spotify</button>
-                </div>
-            </div>
-            <div id="pnlLoadingAccount" style="font-size: 16px; display: none;" class="heading">
-                <div class="title-medium">Account: <span id="userName"></span></div>
-                <br/>
-                <div id="loadingPlaylists"></div>
-                <div id="loadingTracks"></div>
-                <br/>
-                <div id="loadingTitle"></div>
-            </div>
-            <div id="pnlAction" style="overflow: hidden; display: none;">
-                <br/>
-                <div style="width: 50%; float: left;">
-                    <button id="btnExport" class="button-main button-medium">Export</button>
-                </div>
-                <div style="width: 50%; float: left;">
-                    <button id="btnImport" class="button-main button-medium">Import</button>
-                </div>
-            </div>
-            <div id="pnlImport" style="font-size: 16px; overflow: hidden; display: none;" class="heading">
-                <div id="pnlFile" style="">
-                    <div style="float: left;">Select a previously exported file</div>
-                    <input style="float: left; margin-left: 10px;" type="file" id="fileImport" />
-                </div>
-                <div id="pnlFileInfo" style="display: none;">
-                    <div class="title-medium">File: <span id="fileName"></span></div>
-                    <br/>
-                    <div id="filePlaylists"></div>
-                    <div id="fileTracks"></div>
-                </div>
-            </div>
-            <div id="pnlUpload" style="font-size: 16px; overflow: hidden; display: none;" class="heading">
-                <div class="title-medium">Importing new playlists and tracks</div>
-                <br/>
-                <div><span>Processed playlists: </span><span id="playlistStep"></span>/<span id="playlistTotal"></span></div>
-                <div><span>Processed tracks: </span><span id="trackStep"></span>/<span id="trackTotal"></span></div>
-                <br/>
-                <div id="globalStep"></div>
-                <div class="progress">
-                    <div id="progressBar" class="progress-bar" style="display: none;"></div>
-                </div>
-            </div>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SpotMyBackup</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="data:text/css,body%20%7B%0Apadding%3A%200%3B%0Amargin%3A%200%3B%0Afont%2Dfamily%3A%20%27Lato%27%2C%20sans%2Dserif%3B%0Abackground%3A%20url%28data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAALwAAACyCAYAAAD4Q6XbAAAu1klEQVR42sydibLcuA1F9f%2FfmWSWxLH9Fr%2FnPcJU3xrMGSwk1bTTVSitLVFXlyAIgtDx7t2775T379%2BbcP0v24%2BPj9%2B%2Fffv2h3z9%2BvX76%2Bvr3%2BTjx49Lov%2Fbdb98%2BYJrXZeXlxeW%2FfI9WH4rt13%2F8%2BfPd5VPnz7p2jtxt6XhZKL1aB%2B3U9F19bNnuIhDuG64GDfFVXIbhI%2FJzz%2F7F2o%2FexATuzEAx3YJdkb4pevxP1oKFP1UdlybZemv3xPe9mlZ7edL1LbOEXF24h4S2hP%2Fw4cP0TEt7bi2WW77GTa2TxWYWBCftoJ4wj89PYGzf64fWsGB8OTn52eBaw9jN7Cy64H1UgiopAO9Izyluo%2BWvmx2PQEn8AW6gGVZtZ7tX9fwJHz%2FckUak924j2vwXquLM9o2seOe7MTCjnV48VzxUYQP5cjMFsnbt2%2B%2FPzw82EX58AaSvVQPLl9AREJJpVEFjq7Dc6ZILxIRNPsJMIDJ60i6spDwldaKNHhGdmEh7bkb91WCa13llgmpe0rBGM%2BMV%2FYsqsiZqTIuJDzNGml4JzxRBfUPJdBJeIKnQqzYlp7wy3YpiU4A7VfYybYEcVoNT9Op0tYjWl%2FPIDPCXqa1tLtxzwjNbYk4IeyyVlG4sj9o%2Fx8xXXBOT3jyWRqehLfC01aT%2BIcz4EkIakQPwI5OK0GtCMUOTnZMQhu5ll7Dd2XjvaVsjOT2IkX4Dbi3ndZKhHtn%2FkWEl7a3Z9M5Oi%2FCrSW84UNrhSaNzBerbTJfOqGGJ7B8IR4QLC%2Fb8N5Ot6VJRCgtVVm5X0JtT%2Ft%2BnfC9VtfLNqViYi%2BQhN%2BNOwlPrU7F51tilkvn%2B0poXItMaCO%2B%2BoqVNm9teJKdnVa7kbRJ1juniDQzTb0HJwJ8hPAElVrBZLRHv%2BIGqzrHEhF%2B1M1IM0oE9%2BL37cad7zwyaXXdmdaDGp7ElJjitefNWkiTIZOGpDfCq%2FCVG6rT8DMPbet8AQSfJk2mjTI7vbOdZ%2F3kvHZk5sSE539VLncd2OkidkX43bhHJqyWJmg1plyetk3NTsLTvhdeU27JyFw%2FQOrMvzqm4Xsh0CKD9nWdVq2jpoe9%2B9bnbb%2FFAQ8t6YXoCE%2BiqwUTkUDsVHbhXml4ER3XLAnPdRKepEzNHCO%2B%2BgniBYUDT7ym4XZMuJy07G343tfr1%2FXyRwivBwaJQlJ24t2SJtUgEPfzP5mGZwVhZfEanctKduPOQSZhvzKyS8LLpMm0MMUIL%2BKrY6vWP3ynRnj%2BX89xLJBdok4iavIwGDyfnR%2B59XRMRL8mDiTXaTXpbcS%2B0%2BSbblWoqOLQzZiJCM79u3FXZZRWra7NY9V5at2s0xqZMa2IwIaB3iFbbeOmrqdyyHI5KlI3x6jhr8afcFTUx7vEpsspH879H8zmPMWWz6c8nfJ4W76aBruJnf9iFcjWT3FgjQrPJ6E5hG7rXiPJNKhIXtnwkt24a0R01nzpRDiR6JVNH1YMdWxlZqncwlydaXL4KG11NWm2fv7Zlm%2FOl%2FZvI8464QlU2rlSzAWJ%2FvFG7Ifz2H9PseV7W0LenWLnfTLC34huFeTJ9hvZZWPDtsb6TKyHtj3hYaeL7FOEJ%2Bl3487AtNq%2F3gs1fOZFoaSE951aw0UBgRJpdDpfjjfnC%2Fr9fDiTX27LX01s%2FSzcL27b1v9xXszkn6c83bTkxJB7qWU4QCHCfzwBej7LaSSmPN6I%2FXAjcXaOlqb5td%2FuEHhRTK5E7UVRgSQ6CcztzFujY7txtyVb82qkNatIJJ3MEDNLvI3t7XR2WNN1iZHexO5JDW%2BK%2Bv15T%2BP507l%2BmNZ%2BPlcezxN%2BOwvy643Mv98Ib%2Bv%2FEsm1PI%2FZ%2BrO8NJs1vJkinqhPN%2FK%2BNwGpn9z229u2mTqe9LbvxZrt%2FRrenofEzmTGrNmNexdINxrHRMn88JJlM0fa3n5ew78Y%2Fuf9Hm5lOmjjPFmNsAJZx%2BIU0%2Bq%2FnfIf01LnOW%2BMfHbOKTtteIbw0oa3SmBmiiqCiCzCS56tab6da%2F95teWNmBtseF1XIp82SXvdht%2BPu0i%2FyYYXaddteIbC%2BJZVHW3ye7%2BXZr2zKlGtTb00JLK2rTJo%2Fyf15Pd5aaIyS2TWkLirXpqduLP8dnyHl0bmCAlPqdyW8tawzFpX2eGl%2Bbl%2BeHoH6OlgDPuUH%2F5VXpl9fniV3ce%2F%2BLhvxYaI%2BLZtL9oTetYPvxt3bZtgosnP8cPzuGK%2BhLEiBvQsMs%2F0HCL9%2F8NIq9eCXiKtjhc0NtL6ad9Iq8wiEVtkVSURQX0IrF4ICD5F%2BJ24cx9x%2F6EjrRIOIsnzZdv%2BP2pB2ILpPR0i1E%2BIpRHgUdCXjksjZPM6TX50LI0J7XNqbJ0bkVXEl%2Bahlh%2BJpdmNOzvyEeY7Y2k4CUkaXGWMTCESPuwwH6p1Iv7GaEk2o910LmnxjHzUPDujJXk%2FaWiSkYQvXY%2FC3tn3JiOE3407lUdW4XdFS4roJvbc9j%2FhWSYcYJgHMToAiB52Rzy8n20%2F4vem2ZIJiL8lHl7YyE6nRidJ7XlJeIqOCXt2bLWMKsxu3D0eI9kT7hUPz2AvlcdwGfHc6BlTbA5oB2%2Fv3GvGE4HJOookpv4zMy1OxL%2FrjCf7iYyN6RHZ8BXZTThETvs%2B6tzuxr0akIuW6uiuznjiYJOdK0%2BUt9NJdu4X4YlJSngPljTs6pzWqmPE2USZ%2BTBKeF5TbqnVOa0ccayJTsL3Gp77s45tZhLtxn0mYI5pOGbmtFJr2%2FPr2Y3oagm8lJqeGp68PiI7S6SGfT%2BTtUD%2F0wNKBFhldkignUrhNdnkdlkL%2BOKkXTpix0LC9751ElvkUIXjebtx70Kts2v5jm2XtcCTXtkLhBkrA8%2Fndq7hadI0%2Fltq%2FC4vjW%2FeOnJ2x6Hhp4VmTpeXRi%2BqMikKwj51nVZJZ59nHVu1NLbcjfvVjGAqDweu9A7UKZWdrvEJkptCwlOGCT%2FqYhJ5mHnMkwrATg%2FZU8Pj%2BPSkaHZsGbagfeqQrsS3dBqex2f87uov%2BU78btw7LEe0PhULh%2F51XXRIJUPRk1y%2FC%2BF5nMPoAp%2FNZuUL7wgs4MfJ3V9PpBHwKrtAp3bNCN%2FFulSELzu6XHJdHVv7bcad%2F1vJq5NFkPrAusg12Q1AkezzhC%2BkitXwoEfAXW0WIw2%2Fqr2qDtZKUBcJmhF%2Bxu7vzB3vxtyN%2Byze9P6k%2B%2FWzygtSj5gzJHtHeCzHbPjsmEjTAb8KHoBvtfqM1lFlle14NYqx8sOPS6%2F5de3duF%2BtNBTa9fYcZsN3JgqlTfbbuyWvh5EC%2FLYzs6pp6PtdAZ3Na%2BVjHzVxIEuErzq0tOV%2FBO5rfYCe7D6iMc0Qpu3kWHUO3ZI94Rubnhls9QBaQtNeEt2nAzr1C3ObHhv7IQxWA0Ek2yzh6aVZJTy9NSrrbtxXNLtJtO3nBjCMVxgpXqZzPVJwznUbnqN2fiKyaq2ApueGIMwmyYQf%2FvKUOw%2BGH3jSNgPCvMyYOBhpLQnehREwx43Kuht3YpllYM5wj%2FzxvtJyyp8dYz6ZqkPLfUuEJ8k92EzOo5HWbBiaEXn3NGm4neULz2I9mI6CMeKe%2BLN2PQm%2FardLoYAwku24a3slGSzHOMgnE88jEl8%2BehF6eaQ14vZBwz4IJmPOSY60Ztok69TiZZTAmXTahE2oN12yfIoiduaB0v2VWDbXwtdteM28F9EZzxRN4NiNO%2FeNZjuuoihJeKba1vEsWCzc5joJTy1%2FIJxARNcfs1zgXktWvt0%2BLLV3S1b2IvcxXttkiPBFTBGjJEX8isAZ4bMYGm%2Bnq%2BwkuZfduM%2BajdF0wBHCZzFawsFwmRp1JeGJmzS8mmBOiYoSrZLw1CKdxsYLGCI8pZuRE09FG9fwlGymEok8Eg9Pza4XTMJUc1Z3455r%2BN5Ol1SE93ljtMzmTI%2FEwbduSe%2BH9%2FYy7fSRePiZnjvtzFkbnk0zQ1MFXmYKdITnf2jf%2BwxiJeGFKzw%2B0cwnEX0mj8xu3HEdEB92eqNcGMnpCT8iup%2Fv2KZeHfYb%2BE4PhABTUBOnCE8wJdTImXaqNDy1S6YVO5OmIniVix4BXdLWpQ3PEAFdIytnRZzduPttdmCzEOBOPOFHZtVRvDlEsrcmje592MGBb%2FlUGp7uq5khaL6AbBqZSUT0jBjVfp9waOWlMZAOA1epSeM9WxwgmbnvLtw7tyTLvZKrRteqbPiS%2FOwH0MThh%2FDoeTvQtLTEp5fGfokGXg7h5TC0zvNEJ1kmg%2BAqDT9DfHqzRGztU1Ca%2F2Rjd8%2BORCa7cbdlp2B67GqTRv3EYfNG50lxMH7ecGbGaSqlA7Y6a1klJPxKeunUztQPUY1VWrcZWSV8ZepE4cfa7jVjH9Pk5WfgLqm8WpVQO3uyV8l8M%2FLTq5iO5PrW42i1e2%2FSENh7TEAg8NToI4SPj%2Fed1hkiCh9%2BrpJl539nKyvLuRt3Khgt5%2FDq3ZId2dUKtJaHTFS6pXlNr%2BG1rG4eEb6LYMR661NngNcIMXZo%2BJmmmmYONUxXgbr789zduNP7kuO0TniO78xodnoTTTzpUx4fyDiW2ex%2BnXlpAPiSEHzfPEVupitCG37Ipu7v%2B1c7Vb%2BiY71iv0t24y7Cr5gt1f6I8FyvJLP55fmSizonPAg%2B2nkddUuuNLtsWul6XNHC6zb8emYvkv5KZSLh9%2BPem5Ir5SbhOyVLkkdkV%2F%2BJfabYpAGZ0WSkZKdbchX4zOXIz8ZUJsKMKXBvwnuiE%2FSo7PdKbb0bd637QLSO5J0ymiV8Zs5oncGNvuwMemw0PG%2B8PvBUZQCLXF9%2BH%2F3wVRTezMuQVITvtJm2WS4O8ES%2B4MzMmUmdtxt34eu9OCN2PbdnCT%2FsqRHG5AKVItOuHDqoZqNpXvLw4H5iBoWaJcoMlqWnZkJPymintfpfFdPCz%2FJkk1eikcbKTTnawd2NO8vEgbbMPTxKeLq%2Bud65Ien9kqQBbHrmA7m%2FI89MGdVmv4lEPd1Iny0lPCYZIf79%2FPB9CjsKv66dRWHOlJ0VczfumRuSgzmrhK9CCiLbXZjRNOT7E%2BHT1vOQ1nHEH%2B0pjwSPVVGNna2pMlXXI%2Fk6T8Ey4YUTJlhUMSsm%2Bm9H%2FKzsGfF2497F9mQt1WgszWgMDdM%2BtsqIGp7nHgiu8T3cagTWEx4Ah2B2WrEKHuvi4JnQsxroIeFHbGe2Jh3RSPis0s1oTRJ%2FN%2B68N9e7liojJYPHqBC808SbtVW6mJrw1PC4COdQdiZNNx2Mdm6kFWdzS%2FKF8hg7M5EweEySETFOYtS3TjM%2BfD5zZdLsxn3G7ci5FFmLVk3xi%2BLgu5Qb0b421PrQSlN7K7dkN4l3Q16adCJxNSGEAFSdVpYfxIrKkBJ%2BJbMby07ZjftS2ANbqkSZZgNDWceY%2BIwQXvtKwnedFDrySXiBT8CZ0XfU7qS7zGSGdHz5BE7PVHVIR33dXCfhO5kzF%2Fbj3rlNub8ifkZ4P6OuMukyfLK5vsOJmLoZQtQ6DCX1jv%2BqkynhOdxWEzmfbayfiqaya5uEuTpyWRGe%2BHKfF5WfmO7GfXUklR1yDlx55ZlV6pGR6IrwU18A6S6uAlKq9BAkaTcdrc5Lsy5ZGGxH9G4%2FCeXLDtCHm%2BayY2u%2FzbhXNnM3TsF1ciYKmx7l330IPyCsvVEGXgI4GpPddVpxjUuE15Ips1evg2PLJs2oRhUhd%2BNel2d9okwUq76EzbpJs%2F4QGegdsCvZg9cJzu0%2Bd8uV69IcWyVN18ruxJ2En9a4Va4j%2Feg69MsSgznCQ9Y0vC%2B8SNO5vTqXWJXLfYSAM%2FnPvYYfce%2BtzCwi4a8Sn63rbtzHzYuejFHYNG322fvsJzxtMvxGbeCMXKOEr%2B%2FRa68qCazOu5qOm53WqwSnn34f7j3hV0wQKRnizlHaH2vD80AxICXAfME5GkkgV3zp1SdvonvMBEwR9KrsKxpfhF%2FRhtz2FUgKZzfus4TPXIW%2BbPSE2TGG8F6ZIzBO%2BJL0cciBz4HIsM1qwIZCEq%2BYNJ22ounlNY6VWTll4A9OPBn9M9CGXyGMXr6uI9yVFWE37rMzvSgqD7PYeT98FH4MLC7b8CXheZEoz6QKzs9WcgZ6NlI5Kp40s7lXqhBY%2BrJFIn5Shv9D%2Bac0%2FEzMexQZGGUu2437rPnCUWJfSSXIIpZyLYoyHU6SZb%2BS8JEGIuDJvFcRXtvRcZpBM8KR1hHb2TeVfx%2BIuQkILxJxPXONmswRvpdIM%2FrP0FN24z6j4TPlSBGmlSLgdWZCt6c1PIHKUiSQ8F0ahWjUrepYrXzFj37e0UGo7nPydpw2M8tZEb6L8KvyVsrUiki%2FE3cSvjS7vJJxk4k48V%2F7da5tz8QT%2BWfCxI%2B608rjR9AUdanOOIm7m5PomzNOPhg3afoQWFSQacJnn4xU5rDREGGOtEqq72XJROG9M8Lvxl3lrCprpxyj8lWEJz4cc%2BBxrncmzZ9T%2FIqEqtFD8GXh3DYDgoHKMNiV0AKBAe3bEp2En8nhTuJHHVtq%2BCpTGb8tBbKn5dqNe5V4ic%2Fn%2BxBdBdR%2FR71UmYk97KWhHOiQaimpZqaQ8KwQVR4RzjivQmy7qWqzo6Mk%2FOjnKKuOLaX6KIOfKM0WJWtxWKbduEeE53zSiOhZHiNq%2BJHJIiQ9PXfDNryf1XewVmp7Jnswz8U1JZmdmX2pInopVdbbzvzhNjU8paoI%2FCS8SRYtyQ6p0mzTRqdUn6jfjXvmT5dyhPRcoYbvwxP60AqnrBk2nYVZT%2BWWJKgConvg2dno9LRwmy9oVajhtZwVKz87tiprNCGkq1wgfCjbcZcysSWsgNX0GiT8spDIKp%2FPPKays196FE1S12SS8D3QEICRRdVFQ%2Bgzn2XsO609ybpj3r7nELpecGYezbQqWu7EnZhH%2Fn5J13HOCD%2Br2Yfm1bpfmlCVhJ9NtSfguweubDxWJBJnJUSY%2FnLupw1vUpOut6u9fe%2BDpDLzhOsj15fsxp0z3CjRdWY0%2FOgI9GwYg4%2FGDNNxH0UhO0ArDT8KPK8rAsrFxM%2BvdJp83S3ZE72ysbktjVO3INpP6SvAbtz1AYFOAXZc6Qg%2FK9kcZH6wOTW%2FjoEkOPTgjI605s1e7%2Fr0zVRuyqxLrOF7klfanhpexOkqyor5tB13kZLvnf%2BdSMZLwtdmTe%2FFyTrW8CKB8AVQlIzwM3ZcC7rcffitxoZUsTgi%2FIz2LYkqDwJ%2BesH8v0nXYc2O78admY91fkV2SUf4e02MiWx4%2FwzhIOoxUUvrWJr%2B%2F9VxFdw3pSKLtu043X%2F36rR22r361qofzeQUQv8pFn7uMq9k%2FfEfgTvjWnR8tr93T5Mm9K170Tvg5Hfd%2F9DKhE3GQKDIjTkFuP8AmP8coWqofZPT9j08PNg2IxlHO6vcRy%2FNLOn5mfho2D3KlSNyZd9wHTGxduLOJFYcawAPhgefGC25ImGCLIZ8%2ByhNvQuV%2FWh8rD4YKAMtOr8KbGJBbN3ILMD14VmBK8JrvxHFE40hvFc6rZSM8Pz8ZDUUzgrHkIIR253n7MY90qj0e9NN2XWQvYaf8cAQ13aE21c0cvXQCuIiKLOEp%2B3GyQoCzQMu0CPC%2B2M63148k3p2czlJeBKOov0cZOo%2BE0%2FCU9g5rEyZaP9u3KsOZDS54%2BrAU5eTBslg29Dm9P6HA4PTrSClH370M5f%2B2%2FkisoSkzgjvz9X3ORkGS8Jf1fC%2BD5GFn2aEpzlVfVNpdAxgN%2B7QsO2cic6GH%2B206vyoVfHmS0f41LvIWBpfe0cGL0Qar1XYxPpYbwPcQAWBW8JTu2vpxc4l8SuARgjvlQHt9Gh9lvCcoSXcOzNnN%2B4jH4TIAsoYvZm5JUc7pMJvZLqlt%2BHDrNdHkvedMRQQhBYAaBzXOZ6oJC8JndnwfFncb%2Fa97GuTrvnLXIXskOY2Zk%2F4GSF5FGBGuY77%2F3g7111JgRAI%2B%2F5PvfFHJey3QDW4PZOQ4zgebbGkgeZi%2BF6UGM%2BAmiWa4yUsAe9S%2FapiUfitBzxXWl0Pp5d0ErfwpHNFXU36YgbU6mFQwvNYbVdkDFvo8HWyx7bjtO7%2F1HXKscXrZ4btbb5vk6kZK0%2FjVWDVfq%2Bne%2Fcyn2mpVrEhQuVvp6SLbysvoH0yjAjSDKzVd4V58qFl36v9LziydEFWLYh6usa%2FqThAwJ9UPu6m65gNpSSRl%2Fe3%2BQ4gmwpjph%2BUxhnsoMrzQgBPQ787wHsJTwnCzmn66KLQF8lwB1puU8Jrf3te7qdh%2B34QtkADrHKLuaq%2FGwnvCiVRv5eX5Dbf3czGxGsckwI%2F1jKK33fuZW%2B0WpWmAz0NW4bvKss%2BY241dXYPJEr4CHgntSjdom76%2FvbeA5fQWfrNpZtNVBq3AjwunKTPJb57lcbvzzKVfMU3f%2B9uHxeejjpxO%2FCzJo3eVoEqAlHgq8BZHUvA8xw8zm3zujL6snJvpw%2FTAV7Sxj3ETSPh%2B3wn4PcRjVVL%2FmylfJu5FinamxHPOeCHbegFmvfkgekgw9ywn7%2FJuHFSHfssvWOVSuaqg3nygJ%2Fk3J42eLjNd8OHcc3HaAu%2BlL3M5MdECBDwVbhFKuFdiGf2tr7GlBhGhsbtTjUxEt6C3U3nUZ9nDRvfUdovg2eA3%2BqjfLAMiLrLd6%2FSuBfCNXIedCtpeOJ1eBsP3yUI8C2lPhZcYWAqGe%2BZL8Y7CY%2FvrVRXKALDSPUdxpeVYBO35ETSd42Oxfu7fPdG6wTorNrMZhSbUujkzxjwzkPDzPW4uKKbjIUyK%2BPxRN%2BmHz6T5E6yi%2BiTZ7IyezxxOndSn8dSwvsp2kuwTCLe5buX8KJuX1YHJz4D0%2F%2FWZrjtvDRQVwh0hrrG3wUiHi832bsvl8R%2BH1da3f9VwJetkfnh49hfipK589oYWq%2B0sg18NKz5wt3m%2B2lDsZN%2Bs9kKNLuWZ72qrrslqad3BVVZW1LE8g9KcSM4nfcgi5acuNreccQlajJR%2BqTuq6vJyAc%2F9NLs0w%2BDB4l0k%2B%2BnwWM0Shk335XRdvdNQTAFfMRpabSSaS78syq1F4%2BP%2FmgZWGbFz0ZLdhLrfchRPXGRdV2%2BJzN%2Bvkp4GmXugXcq1W2%2BT9vRxLF3blxK%2BC5fgMLKzYyMpWlXWpkFEyPfXNaMi4GWWpHFeHRhAYoczHzqJIYQnFr0cbzuxRZfMiBuVRqmBMbZtDr%2FL%2Fju1iQosTkb8bjIF9f0mcDH8Rbw1milbmWy4NdlOtiJmWqIi5ak%2BoLoSDDmDGSnCQzU77PFqkpX7Qwypqq5F0l%2Fb%2FOd1yNVQkC0WYE%2B5dGJH75MPXyQ1ODyWqfFVLuZQUWKKHE6L00ME2CLmqnLD4A%2FiimiHlrFx3PhiaGtUAHGHadv8x1jKQuqVuNzqt4mvshUr8gBzwjfBwapy1rJAI%2FfbSFPujrf8zDwiYCnQdq99R3gOWWe3isL%2BzPgrJrqq5mFgDmVkKLbfM%2FGE3lu2tBYCb8NtWBkpVVpKKSeRT1CNkRwK7POxx%2BlYFw51EOJK6QsmOmXp71K043fJUZnhi0lmaQ6DdJJcBqP%2FwXfuXAU97usrzngfThF2e2FbYyklrOziuLhnf7axcl3xhOljQtS4%2BqkboiLGPB0rIoxaYqcqDSdNI2M5RK6iJKxBoiPQrzNd%2FF52m9p773y5PoEMAqTnSfP4uHxuwG8IW8b6GFy2T8uBg2mQhtqy4UngmbCD4GHYReu0e8G%2BL%2FgO%2F3pm7ACEgBv3bQT4GehLia0wFSGXQHeg4X2g3zgEew7kHvAVyrAAux%2FGYcs9yZyocannTFu851NC0hfmhmYxJg1CfRt5Y0nArvYdkbrhtk6r2uJ%2BX252evwur5TDyaeHPrVCeQpEWi3%2Bc4XdWJndN8zd%2B1mduZxDMXInkkK%2BIxuAL6rXSKmm1DSMcCN0WoBkun7ZQnx8MkMvQ0B8Ff53tkc%2Fj72gJ8as6Kow7clsx8EjG0rjxng5IRrR28Gw3erhaUJ46gzAjRrbxUXd%2FiyMrPqZOp31bhu813b1OOnblSn0jDBveshS4nO1dhu7AC86bxWMBKSZtwYTZV0We9QZfRi3iYtcgJ4I%2BkZj0Jpfmq8Zl37YpkNAYrHfFEPbvKdYdMMCDtpQwMyEt4IJoKc%2FngVg33%2FMouN9ZUeFM3pYmeq6XtbHJ9tDJmsIJWJoaSUmt91eN8to1PpKL1ZjkJE4E8yq%2Fj3Nt%2Fj9egWnrald16acWZTLDLFnF4JGd0rC1M9iIoEE1vGUaWJ5MATe%2B4zTU3M1zEdYLM49y3gzaxWBtlVxVSrfNlqsWrg6rvOd4KVErPKe%2BW%2BaYwRVZyquzkzvBj4VgqoR28v9J1IlaEWGG%2F1RMaaM16bpTYc4LvkARxj3ZJu%2FBy7xtQB1NVQJPAjqL135D7fO5VLYN3o9wL8aQhINEhjqDOJPQVsip%2BrBkuK8RXdtMqEEhbg7%2FJTWb0rs9AraU%2FqVlrbkAKN3Us2AN5XydXfqlhrpyff5ruR1GlnbJfyR536dBZWsJtyk7tCUxIepRB4oLeLmfxH14mbJ6dRF6ciDdoxXwyd1CyJK25VHRMCvotDyXTXkwTnvOO0z%2Bo%2FrVJ8k%2B%2FTMILMlsnH7gEPOwfpinWurlFpUC7bGGQEPgHPKEtGqFFfdJUHtK0xbCp0RclDfZGArwxyAl3kyuw5Hd4VeGJqIq99m%2B9Tu0LbnWFLwHcSPSakx9IjBvgAfNW20mTMcLqNU70AybLNkixq6VIxt5M2UGlsyYbKP89UMTKXgOdD2Zao0Dl8DI2PO8%2FyQ2%2FzfboQFqmaqVivh%2F2vKmMa91Hup0pjU%2FwywGc6rE7AJAqXOU8Gk5h5A8CPKdPxGXehlzjzQIBWgJ%2F62kn0g0uFuM33zapwp9%2Frd82sTOOrYvNBvi6mAI%2F1Jdt6nsSkB%2F2Nq6B6wNWU427E6fAC8QTs9OFXq4lMs%2FsK%2BK%2FtGbtmXrf5Lh5sfe1pKiDHrm1VPY7jKGYkjrsDfJTuq9qSLl5ECxgnlX6dxCHgv7aZ5%2FTJClgE%2Bla6eT%2B8p8ogll31K75vV4ErO4d8lw3iVBWSk%2FilhBeenyJK8rS%2Fkww%2FeAAM0813EYxW0pdEkChpuv793YPtjjnrOO3PK6JBfJvvwxdfx3q7RB%2FZGENw47uX8CQBfkrSG8X4U2aTsoFv3ZKT6rNRus%2FL6nngGsCPY2cI%2BNt8d2CfvgQEPGwNp4L5Jg70w1e4ZuWxrsMyQwri9KSp1Q3O1C4fhRY4Sd8FHTGzxwB%2B1BSg0uG%2FZg79ku8nEZ0TPtHmk5fJgLj0JJFWXpoTlaYLx2RADwZuJZED%2FCZmhkZrNJigU6aFVO96aTzY2QxY3pjbfP9y%2F1RjonHNljdaRXWuU2zX98bOk6TnIFKw8q3Gnknye7u6JydSxgB%2BkKzN5r%2FBOEWyssae1ZPc0Bejtapvo56y7zO5yXcCfhIkVtWv4Sq%2BZpz3nvSssh5V7l6shKemQqMVB6VtCLuCobxRrvS5AWdGK9UV1xeIWTACNQOgJGmqxaqu0FCkr354njsLLGOD4tt8n9grvAcGlkXw6SXlCxd%2FiyqaA7w3WllMFa6bLta763IRQUjJqtWzab%2FVqhNe17CW2TvMKa0Az2tUPaBEGz88j3GSMQKdDYpv813jmbyk4nsXdSsNgS%2BjYtrf3xgCnAG9Cx5DRAAkfFGJwFWwzQBPQBJ8WVfojdFKItBNVCMA7%2FX%2BTcKG%2BKB1i4y6wCp2Bmcb%2Btt879SYLmqSeb8EvMbHsWS9dbVyrP1TwFsvTdWr1EXJESid1ORNdKSb7s5JYDqgE%2FA8P2cMnv80vgYqzRHQ9YIQ7HFbdJvv7h4rPd1VYha%2F2Xs3EivNaTW2O1Z%2FvUqDqrjV1OUAD7Id6JiIQKkDCW8l8Gn7yWzsBEsHIjf7ZYDnMZVBSiluAH%2BV785NC%2FXFZsuJhDEAvnU1xpnBGrYEPO3TJwlDJegdaDYJ1VHH5ttLCe9CSX25Zj%2F2CXi6a1OHP1EBBGZHUfLf5nsm0Qn0LsOKgKNKQ7vChUXEatHt2gMBT7v0EdAXfUrFQHpRNrW%2F401Qh9f5nUE6Bvz7MWMkqPi3Mmwp4bNc1kySd0CP27f5nnXiY35EFZHIGj6dl6b1rxPMsR8A1x5k9HJ8zEF%2BBAALmO9SkhXE4jYD%2F9UtW%2Bcn0E38yQrw1N%2B7e2CyCcvTxZVQ6rpUW15yUp3fb%2FOdZToikFymFf9K3SHgCfqS5LMXuGXY6t5YpuPdT6BLlXoCULYSPpOGX1UFVt6Fnm4NQd6P0%2BEnbdA5bi5ccRU3GqROkg9Umqt819idETgp%2BES35GnsO4k9vcj7eA%2F0rknCz%2Bh7t2kfCBY%2BBLqjjQ7fSfRJybe47B%2FrHBK0BDdVG7f%2FPt8lKX2tHhJBnqk0Tn93i02U%2BO%2F5I9Cr%2Bjn%2FBfBf6z065m8Cr1yILwD%2FmQg%2BMV6qggH1mG7zXZ6jKrl90khiAnj3IpBkfwj0NuT7GXSdJlHCbyVkVwkWFXjXEr1s%2FbiPwuSxQUXAywrp7tSablt0m%2B9sWaptB3qn%2Buh6LnNJNFlpjSXWS6%2Fjs1ARCPiuMOaIYg1JfHLX6Z6MhF9L92zsmZ%2FdgN1u3%2BQ7VUnq5KedRyJRwjNDyzWdLikasLSdov5OwG%2FKMgg0G0nyUmX4Ze1LosdmMt6pl8aBRmN37Vci46PHhlK%2BAzwIEv4%2B32n4EfAEtKtmTD%2B8y8I6dlFGHrPlDaX9k7j2pjr8tBsHGV5VBWaoLuN8TASjfQng6Rj54zl28iFrpxmBX3lf8L0E%2FS%2F4zuNMGTvbSMJ4aQBoE3YgI1U81qIY3ZJ0qz4HQVHcT8BPGU6pWHXP1rnbZIhi4eyljUozKeEshlOlYDMwUVZsyEh3I%2BHv8Z372FSuCxIj4DOVZmKsti1LeW%2BU6AK%2BXoZHD2AAfOYobpe4nVuQkpyAdqXpBgtPg%2BJOUF2wEMXjIti5YMU4mgngf8H3jChsaMRS1aHBq2u2%2Brr2wd%2Bua7clWQh45hg8WAnsQoJd890Jwx1TGZzUgZnAx3HmZd0XdNL%2BLsvK6dI6n8CjuHcH%2BPt897nBzCIT%2BF1dehceLIqhwu3YWYKFgKfRqh9NX04bDz%2FJPiJYKGHZ3r2jSUt06vCZlOi6wzHmnGOuAE%2FKwhM6%2FZ77fsF3HuOiVQX6zh9fhhaIVCGYBinHzjET8HzmBLwoU%2FQrCRsvcFLtK4Kly0Ul421tmOKldbMD9EDbdGFaxfilTVcSRlFmBu0v%2BD4ga9gylqbLT32Pj%2BejowD3UwJeVLolsySGLB6BGenZhannVvHmHeB0w7NCRt6wFVUqTeXBMMkoawlPinyXYUsJ%2Fwu%2BuwU2fqcxPA0tUFwMga5rTAGf4voxibmVft%2FF0rAjh8j4s1OvADL%2FVwnFHDuMVgN00CfAe9DwHDRs36legL%2FJ99P4oSqnmIFnlUqjRmoAOq5hZtY54D0J%2BBoUl6E5jU57bXaM364E%2F9tMLMwYIZadpfcMmAdGIkH5%2FVwqU36f7z6obpMoo%2B9S0bQPfF%2BXVLR9cZ9FRS2saq0bCHN6esmoNKPucXSPcezcrhg63U%2BftX%2BAviIDlv6v893934RY6Y3hx1%2BusdLhTzKeqoKevpOef9icFjOjddI6xrlVWW4PuvlnoseI9%2F2lt%2Bx9vnsJ78fqgW9duyR%2FP16lUWjBtoQzy02TiacM2ag0mxcgUnQ1umjJLeC%2FNnMQZee%2BzXecbwRyziA8txEyY97zZV3p8E5ast53xvxpSG1ltHIc0yC39P%2F0MVURzMO4AHg%2FFgH%2BJt%2B5b0scNyMxu4oRC8DvjdauVygzY8j8Snp4fdh7aQzgbXkRFlIl8DlOT3svjeNDFYdzn%2B8e8N2Cl4iJ9xVmeK2lsNkDvgI6XV%2FM2Yy%2FeUnlSYzn2Cb5q1wzyNr1cOHkq%2FFEV%2B6WsoAzAeg%2B3ylp9%2BqRzkdvmHjE63UuyZ%2B4JQl0LodnIafYb8tenALeANwCnTHg8fjM1Xof8B58WWWv23znC3cq3d3KK2eQauxmzLjmCvDe986Ldyl%2BBM5pOloEZZfeR3C7sVM1kGTM9H3WYt8YbVvAMyGjKkx6m%2B%2F5sd7FybIYDC%2BIq%2FOMS5p4nvYSXg%2B5WajZRNbxwU96NQmcnYR33Z5pkJKBGnulwlF1%2BIWXRvecVfYi%2FYLvpzNFVdszi5h0edBDFW2%2F8ESwMDJwB3i%2BvT5qj9N0B3h%2Bz3TGKeBdS%2FiJ0do1c8jccjFwjGAn3eY79g3UrroiWWyePLFbquOOJXykpzBI44UdaCYgsMvIh4DX31p98ZKJgO9895RiOq8DfCcsurgTEasGCEC%2F4DslKnkrvFRqF8EuwHPsVG0GOQiL8OCkJQwH4Vb9%2BJuLbtP1aBx2KX6phC%2FGTrBzHJWEdwX%2FKRh0%2Fg3g6XkhuF0lr5t8N16T1CD1ua5ewvNazjYZREuGymN2qvZqwdR1RAlByUNJQwAysQHjOh77pshT1WSMklv35nz0WdJEV%2BZCx97me1dOMALdkcbrAe8pVdFIXGklZh5TT5Hb2QC%2BlnerVAXtq1qw401fxXZsAC%2Binpy5JSk5CfRKBXDNon%2FB96yFECvzOuAblWZNNGxLzx4dMM%2BQURvAuwQK%2FcZFibgwRIm69ZNTHSOQ120lmQaoj4ClbQMQAryiW3znfTDls5Pep4DX%2BRzuJkY5UzFLw%2FexF%2FSAd0yumN3qmfgY%2F%2ByKAPhxEF2pauFj9HRTszHf9wu%2BZ%2BsAVLEI6iq9j27JW9XebETmY8DOkNYJ4DlAtzSdWeaDeJHVtGjAPnoRmOvLGo0GGFa1id9v81286V5K17m988Nvo1NtRxh9dFwFeJIZEADvB7N5e6nSGCNtqcP7EIVIDdD%2FKdSqGaQCrWhSvUt0k%2B%2BsHkww19t7Lw3HPQ2dZqnyckZ7sNzuwLWV8M4wzgwnTK3m%2FHck%2FEn36S45Jkr4lzodfSLxb%2FOdapizNU5f2g7w2xY%2BEeziO8OPL%2BjwXtpMq9hSH9tWxuX3rZcGx9SLU%2FiIRwRBBxIHrF%2FxnSrZtlS2aFuekXZHpDhuYgYvNAC%2F9IvOAWgKe8Jf7FxRnmEe8DXovY7PylhcKMkWmZwOL6p05Zt8Z7I7jVdvZ%2FD7dz%2B8HbvGGVtzaraNNuBTgAWgMgtPPG7fAjI%2BbA2UBqHzw3vysTTcX%2BnqVUPkjDeMJOzceQ7wt%2FnOBTECnyqao42XpsNfGUryftSHNra7lLB8wj9N1IEp4HU8B93Vj2Sz5MkCFPXBuO1UGu07jd3p6l26ruEEVqXO8OW4zXeClV3x2Cihugd%2BPyrl96e2M9yNGAZhcN7%2Fqaf%2BsIQ%2BERy4MQld093WjPkoIa5pKMGlBLxPu0eAV0vL79z33iNVVgOefg7vOR3s6kFgE%2FAZ8Ekx4HXpVAf4CvTkyldCs%2FJNVUIleGQv0XPb75xPfI0pHBol%2BPUHAc%2F5e9anVzaODZepcHZ08E26QYP9lS3pSoFMaWjMoUGKgiM9Pfg1T6ccswM8gwdByVLa6wJw2%2B%2FVhhjB6xe2c2oB83T6LnviKW1Pr%2BMDFVf9wS8Li%2BK2bfNF73hGeL%2BQZBTrLFpfn%2Fqqcn2NI%2BA71SNGTQP4Vb87IpjGej8qUVfjI4ROTbmtXyPAU2dedtDtWMcZ8Bmt3G2bfXa6PBVdu%2FMzrPBg3lcuTQRCpanp5jDtYcsnpRg1Cfhtv7uaOykGsaJT3aky%2BjH58IzoLr22EZ4pTThhxegzwBcOB1h2AI%2F0wi5sXVmSqsk6%2FwqeKofvbvOTWSmAbfu908eJgK4qUbdAYIDeE2Ii4OPr4TfCmOquJOBnXS4oWlrl3o0cftSmMv4DCHw2T7g1hGDk5jwd4KcKWsxh2WVj2%2B%2B6VgX0iiimuXOnWfO88fNZZpSNIjzz9xjhaYz2bCjF3S2NGRUnxrLkRHiJoOS2uY51DdtEwW9OJTn8%2FzUP1jw13va7wEvQdykRTNMihZdA7yolfOYAr1dEeGP4ACgKUAmWDchoezm8N5YVs63%2FX373tC1%2Fm7ukr2W%2FdygEjkWZie9WlZcJmawsS0Y7BuC02P04TtxEwrbjTYQfGwWXsLAbmE9pnPVr0vt%2Bj2A1BDFYrlYQde0pbdgA9xzwGv8BvCSkm81dx3wAAAAASUVORK5CYII%3D%29%20repeat%3B%0Abackground%2Dsize%3A%20188px%20178px%3B%0A%7D%0A%2Econtainer%20%7B%0Awidth%3A%20640px%3B%0Amargin%2Dleft%3A%20auto%3B%0Amargin%2Dright%3A%20auto%3B%0A%7D%0A%2Efooter%20%7B%0Aposition%3A%20fixed%3B%0Abottom%3A%200%3B%0Awidth%3A%20100%25%3B%0A%7D%0A%2Eheading%20%7B%0Acolor%3A%20%23444%3B%0Afont%2Dsize%3A%2024px%3B%0Abackground%2Dcolor%3A%20rgba%28255%2C255%2C255%2C0%2E9%29%3B%0Aborder%2Dbottom%3A%20solid%201px%20%23eaeaea%3B%0Awidth%3A%20100%25%3B%0Az%2Dindex%3A%20500%3B%0Apadding%3A%2012px%3B%0A%7D%0A%2Ebutton%2Dmain%20%7B%0Afont%2Dsize%3A%2018px%3B%0Afont%2Dweight%3A%20600%3B%0Aline%2Dheight%3A%201%2E5%3B%0Acolor%3A%20%23fff%3B%0Abackground%2Dcolor%3A%20%232ebd59%3B%0Adisplay%3A%20inline%2Dblock%3B%0Amargin%2Dbottom%3A%200%3B%0Atext%2Dalign%3A%20center%3B%0Avertical%2Dalign%3A%20middle%3B%0Acursor%3A%20pointer%3B%0Abackground%2Dimage%3A%20none%3B%0Aborder%3A%201px%20solid%20transparent%3B%0Awhite%2Dspace%3A%20nowrap%3B%0Aborder%2Dradius%3A%20500px%3B%0Apadding%3A%2012px%2047px%208px%3B%0Aborder%2Dwidth%3A%200%3B%0Aletter%2Dspacing%3A%201%2E2px%3B%0Amin%2Dwidth%3A%20130px%3B%0Atext%2Dtransform%3A%20uppercase%3B%0Awhite%2Dspace%3A%20normal%3B%0Amargin%3A%200%200%201em%3B%0A%7D%0A%2Ebutton%2Dbig%20%7B%0Amargin%2Dleft%3A%20150px%3B%0A%7D%0A%2Ebutton%2Dmedium%20%7B%0Amargin%2Dleft%3A%2080px%3B%0A%7D%0A%2Etitle%2Dbold%20%7B%0Afont%2Dweight%3A%20bold%3B%20font%2Dsize%3A%2044px%3B%0A%7D%0A%2Etitle%2Dlight%20%7B%0Afont%2Dweight%3A%20300%3B%20color%3A%20%23555%3B%0Afont%2Dsize%3A%2044px%3B%0A%7D%0A%2Etitle%2Dmedium%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2018px%3B%0A%7D%0A%2Eprogress%2Dbar%20%7B%0Awidth%3A%200%25%3B%0Abackground%2Dcolor%3A%20%2386e01e%3B%0Aposition%3A%20relative%3B%0Aheight%3A%2016px%3B%0Aborder%2Dradius%3A%204px%3B%0A%2Dwebkit%2Dtransition%3A%200%2E4s%20linear%3B%0A%2Dmoz%2Dtransition%3A%200%2E4s%20linear%3B%0A%2Do%2Dtransition%3A%200%2E4s%20linear%3B%0Atransition%3A%200%2E4s%20linear%3B%0A%2Dwebkit%2Dtransition%2Dproperty%3A%20width%2C%20background%2Dcolor%3B%0A%2Dmoz%2Dtransition%2Dproperty%3A%20width%2C%20background%2Dcolor%3B%0A%2Do%2Dtransition%2Dproperty%3A%20width%2C%20background%2Dcolor%3B%0Atransition%2Dproperty%3A%20width%2C%20background%2Dcolor%3B%0A%2Dwebkit%2Dbox%2Dshadow%3A%200%200%201px%201px%20rgba%280%2C%200%2C%200%2C%200%2E25%29%2C%20inset%200%201px%20rgba%28255%2C%20255%2C%20255%2C%200%2E1%29%3B%0Abox%2Dshadow%3A%200%200%201px%201px%20rgba%280%2C%200%2C%200%2C%200%2E25%29%2C%20inset%200%201px%20rgba%28255%2C%20255%2C%20255%2C%200%2E1%29%3B%0A%7D%0A%2Eprogress%20%7B%0Awidth%3A%20100%25%3B%0Apadding%3A%204px%3B%0Amargin%2Dtop%3A%2010px%3B%0A%7D%0A%2Elink%20%7B%0Afont%2Dsize%3A%2014px%3B%0Apadding%3A%205px%2015px%3B%0Acolor%3A%20%23121F59%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0A%2Elink%3Ahover%20%7B%0Acolor%3A%20%23A2C852%3B%0A%7D%0A" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script data-external="1" type="text/javascript" src="config.json"></script>
+  <script data-external="1" type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script data-external="1" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+  <p><link data-external="1" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css"></p>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">SpotMyBackup</h1>
+</header>
+<div class="container">
+    <div class="heading">
+        <span class="title-bold">Spot</span><span class="title-light">My</span><span class="title-bold">Backup</span>
+        <br />
+        <br />
+        <div id="pnlLoggedOut">
+            <span><b>Export</b> your playlists and tracks setup into a file by a single click. <b>Import</b> the file to restore your setup at any time.</span>
+            <br />
+            <br />
+            <button id="login" class="button-main button-big">Login with Spotify</button>
         </div>
-        <div class="footer">
-            <div class="container" style="background-color: rgba(255,255,255,0.9); border-bottom: solid 1px #eaeaea; overflow: hidden;">
-                <a href="https://github.com/secuvera/SpotMyBackup/wiki" style="float: left;" class="link">Wiki</a>
-                <a href="https://www.secuvera.de/unternehmen/impressum/" style="float: right;" class="link">Impress</a>
-            </div>
+    </div>
+    <div id="pnlLoadingAccount" style="font-size: 16px; display: none;" class="heading">
+        <div class="title-medium">Account: <span id="userName"></span></div>
+        <br />
+        <div id="loadingPlaylists"></div>
+        <div id="loadingTracks"></div>
+        <br />
+        <div id="loadingTitle"></div>
+    </div>
+    <div id="pnlAction" style="overflow: hidden; display: none;">
+        <br />
+        <div style="width: 50%; float: left;">
+            <button id="btnExport" class="button-main button-medium">Export</button>
         </div>
-        <script type='text/javascript'>
-
-
-var conf = config;
-
-var authWindow = null;
-var token = null;
-var userId = '';
-var collections = {};
-var name = 'spotify';
-
-var isImporting = false;
-var isExporting = false;
-var globalStep = "";
-var playlistStep = 0;
-var trackStep = 0;
-var trackTotal = 0;
-
-var playlistQueue = [];
-var savedQueue = [];
-
-var makingChanges = false;
-
-function refreshTrackData(callback) {
-    if (!isExporting && !isImporting) {
-        isExporting = true;
-        resetCounter();
-        $('#pnlLoadingAccount').show();
-        $('#loadingTitle').html('Please wait. Loading your playlists and tracks ...');
-        refreshPlaylist(function () {
-            refreshMyMusicTracks(function () {
-                // refreshStarredTracks(function () {
-                    $('#loadingTitle').html('Finished loading, you now might want to export or import.');
-                    isExporting = false;
-                    callback();
-                // });
-            });
-        }); 
-    }
-}
-
-function resetCounter() {
-    globalStep = '';
-    playlistStep = 0;
-    playlistTotal = 0;
-    trackStep = 0;
-    trackTotal = 0;
-}
-
-function refreshProgress() {
-    $('#globalStep').html(globalStep);
-    $('#playlistStep').html(playlistStep);
-    $('#playlistTotal').html(playlistTotal);
-    $('#trackStep').html(trackStep);
-    $('#trackTotal').html(trackTotal);
-    var progress = 0;
-    if (trackTotal > 0) {
-        var progress = Math.floor(((trackStep / trackTotal) * 100));
-    }
-    $('#progressBar').css('width', progress+'%')
-    if (typeof collections !== 'undefined' && !makingChanges) {
-        var set = collectionProperties(collections);
-        $('#loadingPlaylists').html(""+set.playlistCount+" playlists");
-        $('#loadingTracks').html(""+set.trackCount+" tracks");
-    }
-    if (typeof importColl !== 'undefined') {
-        var set2 = collectionProperties(importColl);
-        $('#filePlaylists').html(""+set2.playlistCount+" playlists");
-        $('#fileTracks').html(""+set2.trackCount+" tracks");
-    }
-    setTimeout(refreshProgress, 1000);
-}
-
-function login() {
-    var width = 480, height = 640;
-    var left = (screen.width / 2) - (width / 2);
-    var top = (screen.height / 2) - (height / 2);
-
-    var set = {
-      client_id: conf.client_id,
-      redirect_uri: conf.redirect_uri,
-      scope: 'playlist-read playlist-read-private playlist-modify-public playlist-modify-private user-library-read user-library-modify',
-      response_type: 'token',
-      show_dialog: 'true'
-    };
-    authWindow = window.open(
-        "https://accounts.spotify.com/authorize?" + urlEncodeSet(set),
-        "Spotify",
-        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left
-    );
-}
-
-function authCallback(event){
-    if (event.origin !== conf.uri) {
-        console.log("config.uri missconfigured:");
-        console.log({ uri: conf.uri, origin: origin });
-        return;
-    }
-    if (authWindow) {
-        authWindow.close();
-    }
-    handleAuth(event.data);
-}
-
-function urlEncodeSet(set) {
-    var comps = [];
-    for (var i in set) {
-        if (set.hasOwnProperty(i)) {
-            comps.push(encodeURIComponent(i)+"="+encodeURIComponent(set[i]));
-        }
-    }
-    var string = comps.join("&");
-    return string;
-}
-
-function download(filename, text) {
-    var pom = document.createElement('a');
-    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    pom.setAttribute('download', filename);
-
-    if (document.createEvent) {
-        var event = document.createEvent('MouseEvents');
-        event.initEvent('click', true, true);
-        pom.dispatchEvent(event);
-    }
-    else {
-        pom.click();
-    }
-}
-
-function readFile(evt) {
-    //Retrieve the first (and only!) File from the FileList object
-    var f = evt.target.files[0]; 
-
-    if (f) {
-        $('#fileName').html(f.name);
-
-        var r = new FileReader();
-        r.onload = function(e) { 
-            var json = e.target.result;
-
-            importColl = JSON.parse(json);
-
-            $('#pnlFile').hide();
-            $('#pnlFileInfo').show();
-            $('#pnlUpload').show();
-
-            compareEverything();
-        }
-        r.readAsText(f);
-    } else { 
-      alert("Failed to load file");
-    }
-}
-
-function collectionProperties(coll) {
-    return { playlistCount: collPlaylistCount(coll), trackCount: collTrackCount(coll) };
-}
-
-function collTrackCount(coll) {
-    var count = 0;
-    var keys = _.keys(coll.playlists);
-    $.each(keys, function (index, value) {
-        count += coll.playlists[value].tracks.length;
-    });
-    if (coll.starred) {
-        count += coll.starred.length;
-    }
-    if (coll.saved) {
-        count += coll.saved.length;
-    }
-    return count;
-}
-
-function collPlaylistCount(coll) {
-    var keys = _.keys(coll.playlists);
-    var count = keys.length + 1;
-    if (!("importedStarred" in keys)) {
-        count++;
-    }
-    return count;
-}
-
-function compareEverything() {
-    if (!isImporting && !isExporting) {
-        isImporting = true;
-        makingChanges = true;
-        resetCounter();
-
-        savedQueue = [];
-        playlistQueue = [];
-
-        globalStep = "Uploading";
-        if (typeof importColl !== 'undefined') {
-
-            playlistTotal = collPlaylistCount(importColl);            
-
-            // TONOTDO:compare starred -> can not really do that since there is no api to manipulate those
-            // instead we just create a replacement-standard-list
-            globalStep = "Comparing starred tracks";
-            
-            makeSureImportedStarredExists(function (proceed) {
-                if (importColl.starred && importColl.starred.length > 0) {
-                    compareUriTracks(importColl.starred, collections.starred, addToStarred);
-                }
-                // compare saved
-                globalStep = "Comparing saved tracks";
-                compareIdTracks(importColl.saved, collections.saved, addToSaved);
-                playlistStep += 1;
-
-                // compare other playlists
-                var playlistNames = _.keys(importColl.playlists);
-                globalStep = "Comparing custom playlists";
-                handlePlaylistCompare(playlistNames.reverse(), function () {
-                    handleTrackUpload();
-                });
-            });
-        }
-    }
-}
-
-function handleTrackUpload() {
-
-    trackDiff = savedQueue.length + playlistQueue.length;
-    trackTotal = Math.max(collTrackCount(importColl), trackDiff);
-    trackStep = trackTotal - trackDiff;
-
-
-    if (trackTotal > 0) {
-        $('#progressBar').show();
-        globalStep = "Uploading tracks";
-        handleSavedRequests(savedQueue.reverse(), function () {
-            handlePlaylistRequests(playlistQueue.reverse(), function () {
-                globalStep = "Finished uploading";
-                trackTotal = trackStep;
-                isImporting = false;
-            });
-        });
-    } else {
-        globalStep = "No new tracks found in import";
-    }
-}
-
-function handlePlaylistCompare(names, callback) {
-    var name = names.pop();
-    if (!name) {
-        callback();
-        return;
-    }
-    makeSurePlaylistExists(name, function (proceed) {
-        if (proceed) {
-            var playlistId = collections.playlists[name].id;
-            compareUriTracks(importColl.playlists[name].tracks, collections.playlists[name].tracks, function (uri) {
-                addToPlaylist(playlistId, uri);
-            });
-        }
-        handlePlaylistCompare(names, callback);
-    });
-}
-
-function addToPlaylist(playlistId, trackUri) {
-    playlistQueue.push('https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId + '/tracks?uris=' + encodeURIComponent(trackUri));
-}
-
-function makeSurePlaylistExists(name, callback) {
-    playlistStep += 1;
-    if (name in collections.playlists) {
-        callback(true);
-        return;
-    }
-    var set = { name: name, public: "true" };
-    $.ajax({
-        method: "POST",
-        url: 'https://api.spotify.com/v1/users/' + userId + '/playlists',
-        data: JSON.stringify(set),
-        contentType: 'application/json',
-        headers: {
-        'Authorization': 'Bearer ' + token
-        },
-        success: function(response) {         
-            // alert(JSON.stringify(response));
-            collections.playlists[response.name] = {
-                name: response.name,
-                href: response.tracks.href,
-                id: response.id,
-                tracks: []
-            };
-            callback(true);
-        },
-        fail: function () {
-            callback(false);
-        }
-    });
-}
-
-function makeSureImportedStarredExists(callback) {
-    var name = 'importedStarred';
-    makeSurePlaylistExists(name, callback);
-}
-
-function addToStarred(trackUri) {
-    var name = 'importedStarred';
-    var playlistId = collections.playlists[name].id;
-    uriInTracks(trackUri, collections.playlists[name].tracks, function (uri) {
-        addToPlaylist(playlistId, uri);
-    });
-}
-
-function handleSavedRequests(arr, callback) {
-    var url = arr.pop();
-    if (url) {
-        trackStep += 1;
-        $.ajax({
-            method: "PUT",
-            url: url,
-            headers: {
-            'Authorization': 'Bearer ' + token
-            },
-            success: function () {
-            },
-            fail: function (jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown);
-            }
-        })
-        .always(function () {
-            handleSavedRequests(arr, callback);
-        });
-    } else {
-        callback();
-    }
-}
-
-
-function handlePlaylistRequestsWithTimeout(arr, callback) {
-        setTimeout(function() { console.log("Fast runners are dead runners"); handlePlaylistRequests(arr, callback) }, conf.slowdown_import);
-}
-
-function handlePlaylistRequests(arr, callback) {
-    var url = arr.pop();
-    if (url) {
-        trackStep += 1;   
-        $.ajax({
-            method: "POST",
-            url: url,
-            contentType: 'application/json',
-            headers: {
-            'Authorization': 'Bearer ' + token
-            },
-            success: function(response) {      
-                // collections.playlists[response.name] = {
-                //     id: response.id,
-                //     uri: response.uri
-                // };
-            },
-            fail: function (jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown);
-            }
-        })
-        .always(function () {
-            handlePlaylistRequestsWithTimeout(arr, callback);
-        })
-    } else {
-        callback();
-    }
-}
-
-function uriInTracks(uri, tracks, addCallback) {
-    var found = false;
-    $.each(tracks, function (index, value) {
-        if (value.uri == uri) {
-            found = true;
-        }
-    });
-    if (!found) {
-        addCallback(uri);
-    }
-}
-
-function addToSaved(id) {
-    savedQueue.push('https://api.spotify.com/v1/me/tracks?ids='+id);
-}
-
-function compareUriTracks(imported, stored, addCallback) {
-    $.each(imported, function (index, value) {
-        var found = false;
-        $.each(stored, function (index2, value2) {
-            if (value.uri == value2.uri) {
-                found = true;
-            }
-        });
-        if (!found) {
-            addCallback(value.uri);
-        }
-    });
-}
-
-function compareIdTracks(imported, stored, addCallback) {
-    $.each(imported, function (index, value) {
-        var found = false;
-        $.each(stored, function (index2, value2) {
-            if (value.id == value2.id) {
-                found = true;
-            }
-        });
-        if (!found) {
-            addCallback(value.id);
-        }
-    });
-}
-
-function bindControls() {
-    $('#btnImport').click(function () {
-        $('#pnlAction').hide();
-        $('#pnlImport').show();
-    });
-    $('#btnExport').click(function () {
-        var json = JSON.stringify(collections);
-        var d = new Date();
-        var time = '@' + d.getFullYear() + '_' + (d.getMonth() + 1) + '_' + d.getDate();
-        download(name+time+'.json', json);
-    });
-    $('#fileImport').change(readFile);
-}
-
-function handleAuth(accessToken) {
-    token = accessToken;
-    // fetch my public playlists
-    $.ajax({
-        url: 'https://api.spotify.com/v1/me',
-        headers: {
-        'Authorization': 'Bearer ' + accessToken
-        },
-        success: function(response) {         
-            var user_id = response.id.toLowerCase();
-            userId = user_id;
-            name = user_id;
-
-            $('#userName').html(name);
-            $('#pnlLoggedOut').hide();
-
-            refreshTrackData(function () {                   
-                $('#pnlAction').show();
-            });
-        }
-    });
-}
-
-function refreshMyMusicTracks(callback) {
-    collections.saved = [];
-    playlistStep += 1;
-    loadTrackChunks('https://api.spotify.com/v1/me/tracks', collections.saved, callback);
-}
-
-// DEPRECATED
-// function refreshStarredTracks(callback) {
-//     collections.starred = [];
-//     playlistStep += 1;
-//     loadStarred('https://api.spotify.com/v1/users/' + userId + '/starred', collections.starred, callback)
-// }
-
-// DEPRECATED
-// function loadStarred(url, arr, callback) {
-//     $.ajax({
-//         url: url,
-//         headers: {
-//             'Authorization': 'Bearer ' + token
-//         },
-//         success: function(data) {         
-//             if (!data) return;
-//             if ('tracks' in data) {
-//                 loadTrackChunks(data.tracks.href, arr, callback);
-//             } else {
-//                 callback();
-//             }                
-//         }
-//     });
-// }
-
-function loadTrackChunksWithTimeout(url, arr, callback, timeout) {
-        setTimeout(function() { console.log("Taking breath, not to fast my cheetah"); loadTrackChunks(url, arr, callback) }, conf.slowdown_export);
-}
-
-function loadTrackChunks(url, arr, callback) {
-    $.ajax({
-        url: url,
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        success: function (data) {
-            if (!data) return;
-            if ('items' in data) {
-                $.each(data.items, function (index, value) {
-                    if(value.track !== null){
-                        arr.push({ id: value.track.id, uri: value.track.uri });    
-                    }else{
-                        console.log("track is null", value);
-                    }                    
-                });
-            } else {
-                arr.push({ id: data.track.id, uri: data.track.uri });
-            }
-            if (data.next) {
-                loadTrackChunksWithTimeout(data.next, arr, callback);
-            } else {
-                callback();
-            }
-        }
-    });
-}
-
-function refreshPlaylist(callback) {
-    collections.playlists = {};
-    var playlists = [];
-    loadPlaylistChunks('https://api.spotify.com/v1/users/' + userId + '/playlists', playlists, function () {
-        handlePlaylistTracks(playlists, collections.playlists, callback);
-    });
-}
-
-function loadPlaylistChunks(url, arr, callback) {
-    $.ajax({
-        url: url,
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        success: function (data) {
-            if (!data) return;
-            if ('items' in data) {
-                $.each(data.items, function (index, value) {
-                    if (value.tracks && value.tracks.href) {
-                        arr.push({
-                            name: value.name,
-                            href: value.tracks.href,
-                            id: value.id,
-                            tracks: []
-                        });
-                    }
-                });
-            } else {
-                if (data.tracks && data.tracks.href) {
-                    arr.push({
-                        name: data.name,
-                        href: data.tracks.href,
-                        id: value.id,
-                        tracks: []
-                    });
-                }
-            }
-            if (data.next) {
-                loadPlaylistChunks(data.next, arr, callback);
-            } else {
-                callback();
-            }
-        }
-    });
-}
-
-function handlePlaylistTracks(arr, result, callback) {
-    var item = arr.pop();
-    if (!item) {
-        return callback();
-    }
-    playlistStep += 1;
-    item.tracks = [];
-    loadTrackChunks(item.href, item.tracks, function () {
-        delete item.href;
-        result[item.name] = item;
-        if (arr.length == 0) {
-            callback();
-        } else {
-            handlePlaylistTracks(arr, result, callback);
-        }
-    });
-}
-
-window.onload = function() {
-    if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
-        // MSIE
-        $('#pnlLoggedOut').html('Please use Firefox or Chrome, due to a bug in Internet Explorer');
-    } else {
-        $('#login').click(login);
-        window.addEventListener("message", authCallback, false);
-        bindControls();
-        refreshProgress();
-    }
-}
-
-        </script>
-    </body>
+        <div style="width: 50%; float: left;">
+            <button id="btnImport" class="button-main button-medium">Import</button>
+        </div>
+    </div>
+    <div id="pnlImport" style="font-size: 16px; overflow: hidden; display: none;" class="heading">
+        <div id="pnlFile" style>
+            <div style="float: left;">Select a previously exported file</div>
+            <input style="float: left; margin-left: 10px;" type="file" id="fileImport"></input>
+        </div>
+        <div id="pnlFileInfo" style="display: none;">
+            <div class="title-medium">File: <span id="fileName"></span></div>
+            <br />
+            <div id="filePlaylists"></div>
+            <div id="fileTracks"></div>
+        </div>
+    </div>
+    <div id="pnlUpload" style="font-size: 16px; overflow: hidden; display: none;" class="heading">
+        <div class="title-medium">Importing new playlists and tracks</div>
+        <br />
+        <div><span>Processed playlists: </span><span id="playlistStep"></span>/<span id="playlistTotal"></span></div>
+        <div><span>Processed tracks: </span><span id="trackStep"></span>/<span id="trackTotal"></span></div>
+        <br />
+        <div id="globalStep"></div>
+        <div class="progress">
+            <div id="progressBar" class="progress-bar" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="data:application/javascript;base64,dmFyIGNvbmYgPSBjb25maWc7Cgp2YXIgYXV0aFdpbmRvdyA9IG51bGw7CnZhciB0b2tlbiA9IG51bGw7CnZhciB1c2VySWQgPSAnJzsKdmFyIGNvbGxlY3Rpb25zID0ge307CnZhciBuYW1lID0gJ3Nwb3RpZnknOwoKdmFyIGlzSW1wb3J0aW5nID0gZmFsc2U7CnZhciBpc0V4cG9ydGluZyA9IGZhbHNlOwp2YXIgZ2xvYmFsU3RlcCA9ICIiOwp2YXIgcGxheWxpc3RTdGVwID0gMDsKdmFyIHRyYWNrU3RlcCA9IDA7CnZhciB0cmFja1RvdGFsID0gMDsKCnZhciBwbGF5bGlzdFF1ZXVlID0gW107CnZhciBzYXZlZFF1ZXVlID0gW107Cgp2YXIgbWFraW5nQ2hhbmdlcyA9IGZhbHNlOwoKZnVuY3Rpb24gcmVmcmVzaFRyYWNrRGF0YShjYWxsYmFjaykgewogICAgaWYgKCFpc0V4cG9ydGluZyAmJiAhaXNJbXBvcnRpbmcpIHsKICAgICAgICBpc0V4cG9ydGluZyA9IHRydWU7CiAgICAgICAgcmVzZXRDb3VudGVyKCk7CiAgICAgICAgJCgnI3BubExvYWRpbmdBY2NvdW50Jykuc2hvdygpOwogICAgICAgICQoJyNsb2FkaW5nVGl0bGUnKS5odG1sKCdQbGVhc2Ugd2FpdC4gTG9hZGluZyB5b3VyIHBsYXlsaXN0cyBhbmQgdHJhY2tzIC4uLicpOwogICAgICAgIHJlZnJlc2hQbGF5bGlzdChmdW5jdGlvbiAoKSB7CiAgICAgICAgICAgIHJlZnJlc2hNeU11c2ljVHJhY2tzKGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgICAgIC8vIHJlZnJlc2hTdGFycmVkVHJhY2tzKGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgICAgICAgICAkKCcjbG9hZGluZ1RpdGxlJykuaHRtbCgnRmluaXNoZWQgbG9hZGluZywgeW91IG5vdyBtaWdodCB3YW50IHRvIGV4cG9ydCBvciBpbXBvcnQuJyk7CiAgICAgICAgICAgICAgICAgICAgaXNFeHBvcnRpbmcgPSBmYWxzZTsKICAgICAgICAgICAgICAgICAgICBjYWxsYmFjaygpOwogICAgICAgICAgICAgICAgLy8gfSk7CiAgICAgICAgICAgIH0pOwogICAgICAgIH0pOyAKICAgIH0KfQoKZnVuY3Rpb24gcmVzZXRDb3VudGVyKCkgewogICAgZ2xvYmFsU3RlcCA9ICcnOwogICAgcGxheWxpc3RTdGVwID0gMDsKICAgIHBsYXlsaXN0VG90YWwgPSAwOwogICAgdHJhY2tTdGVwID0gMDsKICAgIHRyYWNrVG90YWwgPSAwOwp9CgpmdW5jdGlvbiByZWZyZXNoUHJvZ3Jlc3MoKSB7CiAgICAkKCcjZ2xvYmFsU3RlcCcpLmh0bWwoZ2xvYmFsU3RlcCk7CiAgICAkKCcjcGxheWxpc3RTdGVwJykuaHRtbChwbGF5bGlzdFN0ZXApOwogICAgJCgnI3BsYXlsaXN0VG90YWwnKS5odG1sKHBsYXlsaXN0VG90YWwpOwogICAgJCgnI3RyYWNrU3RlcCcpLmh0bWwodHJhY2tTdGVwKTsKICAgICQoJyN0cmFja1RvdGFsJykuaHRtbCh0cmFja1RvdGFsKTsKICAgIHZhciBwcm9ncmVzcyA9IDA7CiAgICBpZiAodHJhY2tUb3RhbCA+IDApIHsKICAgICAgICB2YXIgcHJvZ3Jlc3MgPSBNYXRoLmZsb29yKCgodHJhY2tTdGVwIC8gdHJhY2tUb3RhbCkgKiAxMDApKTsKICAgIH0KICAgICQoJyNwcm9ncmVzc0JhcicpLmNzcygnd2lkdGgnLCBwcm9ncmVzcysnJScpCiAgICBpZiAodHlwZW9mIGNvbGxlY3Rpb25zICE9PSAndW5kZWZpbmVkJyAmJiAhbWFraW5nQ2hhbmdlcykgewogICAgICAgIHZhciBzZXQgPSBjb2xsZWN0aW9uUHJvcGVydGllcyhjb2xsZWN0aW9ucyk7CiAgICAgICAgJCgnI2xvYWRpbmdQbGF5bGlzdHMnKS5odG1sKCIiK3NldC5wbGF5bGlzdENvdW50KyIgcGxheWxpc3RzIik7CiAgICAgICAgJCgnI2xvYWRpbmdUcmFja3MnKS5odG1sKCIiK3NldC50cmFja0NvdW50KyIgdHJhY2tzIik7CiAgICB9CiAgICBpZiAodHlwZW9mIGltcG9ydENvbGwgIT09ICd1bmRlZmluZWQnKSB7CiAgICAgICAgdmFyIHNldDIgPSBjb2xsZWN0aW9uUHJvcGVydGllcyhpbXBvcnRDb2xsKTsKICAgICAgICAkKCcjZmlsZVBsYXlsaXN0cycpLmh0bWwoIiIrc2V0Mi5wbGF5bGlzdENvdW50KyIgcGxheWxpc3RzIik7CiAgICAgICAgJCgnI2ZpbGVUcmFja3MnKS5odG1sKCIiK3NldDIudHJhY2tDb3VudCsiIHRyYWNrcyIpOwogICAgfQogICAgc2V0VGltZW91dChyZWZyZXNoUHJvZ3Jlc3MsIDEwMDApOwp9CgpmdW5jdGlvbiBsb2dpbigpIHsKICAgIHZhciB3aWR0aCA9IDQ4MCwgaGVpZ2h0ID0gNjQwOwogICAgdmFyIGxlZnQgPSAoc2NyZWVuLndpZHRoIC8gMikgLSAod2lkdGggLyAyKTsKICAgIHZhciB0b3AgPSAoc2NyZWVuLmhlaWdodCAvIDIpIC0gKGhlaWdodCAvIDIpOwoKICAgIHZhciBzZXQgPSB7CiAgICAgIGNsaWVudF9pZDogY29uZi5jbGllbnRfaWQsCiAgICAgIHJlZGlyZWN0X3VyaTogY29uZi5yZWRpcmVjdF91cmksCiAgICAgIHNjb3BlOiAncGxheWxpc3QtcmVhZCBwbGF5bGlzdC1yZWFkLXByaXZhdGUgcGxheWxpc3QtbW9kaWZ5LXB1YmxpYyBwbGF5bGlzdC1tb2RpZnktcHJpdmF0ZSB1c2VyLWxpYnJhcnktcmVhZCB1c2VyLWxpYnJhcnktbW9kaWZ5JywKICAgICAgcmVzcG9uc2VfdHlwZTogJ3Rva2VuJywKICAgICAgc2hvd19kaWFsb2c6ICd0cnVlJwogICAgfTsKICAgIGF1dGhXaW5kb3cgPSB3aW5kb3cub3BlbigKICAgICAgICAiaHR0cHM6Ly9hY2NvdW50cy5zcG90aWZ5LmNvbS9hdXRob3JpemU/IiArIHVybEVuY29kZVNldChzZXQpLAogICAgICAgICJTcG90aWZ5IiwKICAgICAgICAnbWVudWJhcj1ubyxsb2NhdGlvbj1ubyxyZXNpemFibGU9bm8sc2Nyb2xsYmFycz1ubyxzdGF0dXM9bm8sIHdpZHRoPScgKyB3aWR0aCArICcsIGhlaWdodD0nICsgaGVpZ2h0ICsgJywgdG9wPScgKyB0b3AgKyAnLCBsZWZ0PScgKyBsZWZ0CiAgICApOwp9CgpmdW5jdGlvbiBhdXRoQ2FsbGJhY2soZXZlbnQpewogICAgaWYgKGV2ZW50Lm9yaWdpbiAhPT0gY29uZi51cmkpIHsKICAgICAgICBjb25zb2xlLmxvZygiY29uZmlnLnVyaSBtaXNzY29uZmlndXJlZDoiKTsKICAgICAgICBjb25zb2xlLmxvZyh7IHVyaTogY29uZi51cmksIG9yaWdpbjogb3JpZ2luIH0pOwogICAgICAgIHJldHVybjsKICAgIH0KICAgIGlmIChhdXRoV2luZG93KSB7CiAgICAgICAgYXV0aFdpbmRvdy5jbG9zZSgpOwogICAgfQogICAgaGFuZGxlQXV0aChldmVudC5kYXRhKTsKfQoKZnVuY3Rpb24gdXJsRW5jb2RlU2V0KHNldCkgewogICAgdmFyIGNvbXBzID0gW107CiAgICBmb3IgKHZhciBpIGluIHNldCkgewogICAgICAgIGlmIChzZXQuaGFzT3duUHJvcGVydHkoaSkpIHsKICAgICAgICAgICAgY29tcHMucHVzaChlbmNvZGVVUklDb21wb25lbnQoaSkrIj0iK2VuY29kZVVSSUNvbXBvbmVudChzZXRbaV0pKTsKICAgICAgICB9CiAgICB9CiAgICB2YXIgc3RyaW5nID0gY29tcHMuam9pbigiJiIpOwogICAgcmV0dXJuIHN0cmluZzsKfQoKZnVuY3Rpb24gZG93bmxvYWQoZmlsZW5hbWUsIHRleHQpIHsKICAgIHZhciBwb20gPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdhJyk7CiAgICBwb20uc2V0QXR0cmlidXRlKCdocmVmJywgJ2RhdGE6dGV4dC9wbGFpbjtjaGFyc2V0PXV0Zi04LCcgKyBlbmNvZGVVUklDb21wb25lbnQodGV4dCkpOwogICAgcG9tLnNldEF0dHJpYnV0ZSgnZG93bmxvYWQnLCBmaWxlbmFtZSk7CgogICAgaWYgKGRvY3VtZW50LmNyZWF0ZUV2ZW50KSB7CiAgICAgICAgdmFyIGV2ZW50ID0gZG9jdW1lbnQuY3JlYXRlRXZlbnQoJ01vdXNlRXZlbnRzJyk7CiAgICAgICAgZXZlbnQuaW5pdEV2ZW50KCdjbGljaycsIHRydWUsIHRydWUpOwogICAgICAgIHBvbS5kaXNwYXRjaEV2ZW50KGV2ZW50KTsKICAgIH0KICAgIGVsc2UgewogICAgICAgIHBvbS5jbGljaygpOwogICAgfQp9CgpmdW5jdGlvbiByZWFkRmlsZShldnQpIHsKICAgIC8vUmV0cmlldmUgdGhlIGZpcnN0IChhbmQgb25seSEpIEZpbGUgZnJvbSB0aGUgRmlsZUxpc3Qgb2JqZWN0CiAgICB2YXIgZiA9IGV2dC50YXJnZXQuZmlsZXNbMF07IAoKICAgIGlmIChmKSB7CiAgICAgICAgJCgnI2ZpbGVOYW1lJykuaHRtbChmLm5hbWUpOwoKICAgICAgICB2YXIgciA9IG5ldyBGaWxlUmVhZGVyKCk7CiAgICAgICAgci5vbmxvYWQgPSBmdW5jdGlvbihlKSB7IAogICAgICAgICAgICB2YXIganNvbiA9IGUudGFyZ2V0LnJlc3VsdDsKCiAgICAgICAgICAgIGltcG9ydENvbGwgPSBKU09OLnBhcnNlKGpzb24pOwoKICAgICAgICAgICAgJCgnI3BubEZpbGUnKS5oaWRlKCk7CiAgICAgICAgICAgICQoJyNwbmxGaWxlSW5mbycpLnNob3coKTsKICAgICAgICAgICAgJCgnI3BubFVwbG9hZCcpLnNob3coKTsKCiAgICAgICAgICAgIGNvbXBhcmVFdmVyeXRoaW5nKCk7CiAgICAgICAgfQogICAgICAgIHIucmVhZEFzVGV4dChmKTsKICAgIH0gZWxzZSB7IAogICAgICBhbGVydCgiRmFpbGVkIHRvIGxvYWQgZmlsZSIpOwogICAgfQp9CgpmdW5jdGlvbiBjb2xsZWN0aW9uUHJvcGVydGllcyhjb2xsKSB7CiAgICByZXR1cm4geyBwbGF5bGlzdENvdW50OiBjb2xsUGxheWxpc3RDb3VudChjb2xsKSwgdHJhY2tDb3VudDogY29sbFRyYWNrQ291bnQoY29sbCkgfTsKfQoKZnVuY3Rpb24gY29sbFRyYWNrQ291bnQoY29sbCkgewogICAgdmFyIGNvdW50ID0gMDsKICAgIHZhciBrZXlzID0gXy5rZXlzKGNvbGwucGxheWxpc3RzKTsKICAgICQuZWFjaChrZXlzLCBmdW5jdGlvbiAoaW5kZXgsIHZhbHVlKSB7CiAgICAgICAgY291bnQgKz0gY29sbC5wbGF5bGlzdHNbdmFsdWVdLnRyYWNrcy5sZW5ndGg7CiAgICB9KTsKICAgIGlmIChjb2xsLnN0YXJyZWQpIHsKICAgICAgICBjb3VudCArPSBjb2xsLnN0YXJyZWQubGVuZ3RoOwogICAgfQogICAgaWYgKGNvbGwuc2F2ZWQpIHsKICAgICAgICBjb3VudCArPSBjb2xsLnNhdmVkLmxlbmd0aDsKICAgIH0KICAgIHJldHVybiBjb3VudDsKfQoKZnVuY3Rpb24gY29sbFBsYXlsaXN0Q291bnQoY29sbCkgewogICAgdmFyIGtleXMgPSBfLmtleXMoY29sbC5wbGF5bGlzdHMpOwogICAgdmFyIGNvdW50ID0ga2V5cy5sZW5ndGggKyAxOwogICAgaWYgKCEoImltcG9ydGVkU3RhcnJlZCIgaW4ga2V5cykpIHsKICAgICAgICBjb3VudCsrOwogICAgfQogICAgcmV0dXJuIGNvdW50Owp9CgpmdW5jdGlvbiBjb21wYXJlRXZlcnl0aGluZygpIHsKICAgIGlmICghaXNJbXBvcnRpbmcgJiYgIWlzRXhwb3J0aW5nKSB7CiAgICAgICAgaXNJbXBvcnRpbmcgPSB0cnVlOwogICAgICAgIG1ha2luZ0NoYW5nZXMgPSB0cnVlOwogICAgICAgIHJlc2V0Q291bnRlcigpOwoKICAgICAgICBzYXZlZFF1ZXVlID0gW107CiAgICAgICAgcGxheWxpc3RRdWV1ZSA9IFtdOwoKICAgICAgICBnbG9iYWxTdGVwID0gIlVwbG9hZGluZyI7CiAgICAgICAgaWYgKHR5cGVvZiBpbXBvcnRDb2xsICE9PSAndW5kZWZpbmVkJykgewoKICAgICAgICAgICAgcGxheWxpc3RUb3RhbCA9IGNvbGxQbGF5bGlzdENvdW50KGltcG9ydENvbGwpOyAgICAgICAgICAgIAoKICAgICAgICAgICAgLy8gVE9OT1RETzpjb21wYXJlIHN0YXJyZWQgLT4gY2FuIG5vdCByZWFsbHkgZG8gdGhhdCBzaW5jZSB0aGVyZSBpcyBubyBhcGkgdG8gbWFuaXB1bGF0ZSB0aG9zZQogICAgICAgICAgICAvLyBpbnN0ZWFkIHdlIGp1c3QgY3JlYXRlIGEgcmVwbGFjZW1lbnQtc3RhbmRhcmQtbGlzdAogICAgICAgICAgICBnbG9iYWxTdGVwID0gIkNvbXBhcmluZyBzdGFycmVkIHRyYWNrcyI7CiAgICAgICAgICAgIAogICAgICAgICAgICBtYWtlU3VyZUltcG9ydGVkU3RhcnJlZEV4aXN0cyhmdW5jdGlvbiAocHJvY2VlZCkgewogICAgICAgICAgICAgICAgaWYgKGltcG9ydENvbGwuc3RhcnJlZCAmJiBpbXBvcnRDb2xsLnN0YXJyZWQubGVuZ3RoID4gMCkgewogICAgICAgICAgICAgICAgICAgIGNvbXBhcmVVcmlUcmFja3MoaW1wb3J0Q29sbC5zdGFycmVkLCBjb2xsZWN0aW9ucy5zdGFycmVkLCBhZGRUb1N0YXJyZWQpOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgLy8gY29tcGFyZSBzYXZlZAogICAgICAgICAgICAgICAgZ2xvYmFsU3RlcCA9ICJDb21wYXJpbmcgc2F2ZWQgdHJhY2tzIjsKICAgICAgICAgICAgICAgIGNvbXBhcmVJZFRyYWNrcyhpbXBvcnRDb2xsLnNhdmVkLCBjb2xsZWN0aW9ucy5zYXZlZCwgYWRkVG9TYXZlZCk7CiAgICAgICAgICAgICAgICBwbGF5bGlzdFN0ZXAgKz0gMTsKCiAgICAgICAgICAgICAgICAvLyBjb21wYXJlIG90aGVyIHBsYXlsaXN0cwogICAgICAgICAgICAgICAgdmFyIHBsYXlsaXN0TmFtZXMgPSBfLmtleXMoaW1wb3J0Q29sbC5wbGF5bGlzdHMpOwogICAgICAgICAgICAgICAgZ2xvYmFsU3RlcCA9ICJDb21wYXJpbmcgY3VzdG9tIHBsYXlsaXN0cyI7CiAgICAgICAgICAgICAgICBoYW5kbGVQbGF5bGlzdENvbXBhcmUocGxheWxpc3ROYW1lcy5yZXZlcnNlKCksIGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgICAgICAgICBoYW5kbGVUcmFja1VwbG9hZCgpOwogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KfQoKZnVuY3Rpb24gaGFuZGxlVHJhY2tVcGxvYWQoKSB7CgogICAgdHJhY2tEaWZmID0gc2F2ZWRRdWV1ZS5sZW5ndGggKyBwbGF5bGlzdFF1ZXVlLmxlbmd0aDsKICAgIHRyYWNrVG90YWwgPSBNYXRoLm1heChjb2xsVHJhY2tDb3VudChpbXBvcnRDb2xsKSwgdHJhY2tEaWZmKTsKICAgIHRyYWNrU3RlcCA9IHRyYWNrVG90YWwgLSB0cmFja0RpZmY7CgoKICAgIGlmICh0cmFja1RvdGFsID4gMCkgewogICAgICAgICQoJyNwcm9ncmVzc0JhcicpLnNob3coKTsKICAgICAgICBnbG9iYWxTdGVwID0gIlVwbG9hZGluZyB0cmFja3MiOwogICAgICAgIGhhbmRsZVNhdmVkUmVxdWVzdHMoc2F2ZWRRdWV1ZS5yZXZlcnNlKCksIGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgaGFuZGxlUGxheWxpc3RSZXF1ZXN0cyhwbGF5bGlzdFF1ZXVlLnJldmVyc2UoKSwgZnVuY3Rpb24gKCkgewogICAgICAgICAgICAgICAgZ2xvYmFsU3RlcCA9ICJGaW5pc2hlZCB1cGxvYWRpbmciOwogICAgICAgICAgICAgICAgdHJhY2tUb3RhbCA9IHRyYWNrU3RlcDsKICAgICAgICAgICAgICAgIGlzSW1wb3J0aW5nID0gZmFsc2U7CiAgICAgICAgICAgIH0pOwogICAgICAgIH0pOwogICAgfSBlbHNlIHsKICAgICAgICBnbG9iYWxTdGVwID0gIk5vIG5ldyB0cmFja3MgZm91bmQgaW4gaW1wb3J0IjsKICAgIH0KfQoKZnVuY3Rpb24gaGFuZGxlUGxheWxpc3RDb21wYXJlKG5hbWVzLCBjYWxsYmFjaykgewogICAgdmFyIG5hbWUgPSBuYW1lcy5wb3AoKTsKICAgIGlmICghbmFtZSkgewogICAgICAgIGNhbGxiYWNrKCk7CiAgICAgICAgcmV0dXJuOwogICAgfQogICAgbWFrZVN1cmVQbGF5bGlzdEV4aXN0cyhuYW1lLCBmdW5jdGlvbiAocHJvY2VlZCkgewogICAgICAgIGlmIChwcm9jZWVkKSB7CiAgICAgICAgICAgIHZhciBwbGF5bGlzdElkID0gY29sbGVjdGlvbnMucGxheWxpc3RzW25hbWVdLmlkOwogICAgICAgICAgICBjb21wYXJlVXJpVHJhY2tzKGltcG9ydENvbGwucGxheWxpc3RzW25hbWVdLnRyYWNrcywgY29sbGVjdGlvbnMucGxheWxpc3RzW25hbWVdLnRyYWNrcywgZnVuY3Rpb24gKHVyaSkgewogICAgICAgICAgICAgICAgYWRkVG9QbGF5bGlzdChwbGF5bGlzdElkLCB1cmkpOwogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgaGFuZGxlUGxheWxpc3RDb21wYXJlKG5hbWVzLCBjYWxsYmFjayk7CiAgICB9KTsKfQoKZnVuY3Rpb24gYWRkVG9QbGF5bGlzdChwbGF5bGlzdElkLCB0cmFja1VyaSkgewogICAgcGxheWxpc3RRdWV1ZS5wdXNoKCdodHRwczovL2FwaS5zcG90aWZ5LmNvbS92MS91c2Vycy8nICsgdXNlcklkICsgJy9wbGF5bGlzdHMvJyArIHBsYXlsaXN0SWQgKyAnL3RyYWNrcz91cmlzPScgKyBlbmNvZGVVUklDb21wb25lbnQodHJhY2tVcmkpKTsKfQoKZnVuY3Rpb24gbWFrZVN1cmVQbGF5bGlzdEV4aXN0cyhuYW1lLCBjYWxsYmFjaykgewogICAgcGxheWxpc3RTdGVwICs9IDE7CiAgICBpZiAobmFtZSBpbiBjb2xsZWN0aW9ucy5wbGF5bGlzdHMpIHsKICAgICAgICBjYWxsYmFjayh0cnVlKTsKICAgICAgICByZXR1cm47CiAgICB9CiAgICB2YXIgc2V0ID0geyBuYW1lOiBuYW1lLCBwdWJsaWM6ICJ0cnVlIiB9OwogICAgJC5hamF4KHsKICAgICAgICBtZXRob2Q6ICJQT1NUIiwKICAgICAgICB1cmw6ICdodHRwczovL2FwaS5zcG90aWZ5LmNvbS92MS91c2Vycy8nICsgdXNlcklkICsgJy9wbGF5bGlzdHMnLAogICAgICAgIGRhdGE6IEpTT04uc3RyaW5naWZ5KHNldCksCiAgICAgICAgY29udGVudFR5cGU6ICdhcHBsaWNhdGlvbi9qc29uJywKICAgICAgICBoZWFkZXJzOiB7CiAgICAgICAgJ0F1dGhvcml6YXRpb24nOiAnQmVhcmVyICcgKyB0b2tlbgogICAgICAgIH0sCiAgICAgICAgc3VjY2VzczogZnVuY3Rpb24ocmVzcG9uc2UpIHsgICAgICAgICAKICAgICAgICAgICAgLy8gYWxlcnQoSlNPTi5zdHJpbmdpZnkocmVzcG9uc2UpKTsKICAgICAgICAgICAgY29sbGVjdGlvbnMucGxheWxpc3RzW3Jlc3BvbnNlLm5hbWVdID0gewogICAgICAgICAgICAgICAgbmFtZTogcmVzcG9uc2UubmFtZSwKICAgICAgICAgICAgICAgIGhyZWY6IHJlc3BvbnNlLnRyYWNrcy5ocmVmLAogICAgICAgICAgICAgICAgaWQ6IHJlc3BvbnNlLmlkLAogICAgICAgICAgICAgICAgdHJhY2tzOiBbXQogICAgICAgICAgICB9OwogICAgICAgICAgICBjYWxsYmFjayh0cnVlKTsKICAgICAgICB9LAogICAgICAgIGZhaWw6IGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgY2FsbGJhY2soZmFsc2UpOwogICAgICAgIH0KICAgIH0pOwp9CgpmdW5jdGlvbiBtYWtlU3VyZUltcG9ydGVkU3RhcnJlZEV4aXN0cyhjYWxsYmFjaykgewogICAgdmFyIG5hbWUgPSAnaW1wb3J0ZWRTdGFycmVkJzsKICAgIG1ha2VTdXJlUGxheWxpc3RFeGlzdHMobmFtZSwgY2FsbGJhY2spOwp9CgpmdW5jdGlvbiBhZGRUb1N0YXJyZWQodHJhY2tVcmkpIHsKICAgIHZhciBuYW1lID0gJ2ltcG9ydGVkU3RhcnJlZCc7CiAgICB2YXIgcGxheWxpc3RJZCA9IGNvbGxlY3Rpb25zLnBsYXlsaXN0c1tuYW1lXS5pZDsKICAgIHVyaUluVHJhY2tzKHRyYWNrVXJpLCBjb2xsZWN0aW9ucy5wbGF5bGlzdHNbbmFtZV0udHJhY2tzLCBmdW5jdGlvbiAodXJpKSB7CiAgICAgICAgYWRkVG9QbGF5bGlzdChwbGF5bGlzdElkLCB1cmkpOwogICAgfSk7Cn0KCmZ1bmN0aW9uIGhhbmRsZVNhdmVkUmVxdWVzdHMoYXJyLCBjYWxsYmFjaykgewogICAgdmFyIHVybCA9IGFyci5wb3AoKTsKICAgIGlmICh1cmwpIHsKICAgICAgICB0cmFja1N0ZXAgKz0gMTsKICAgICAgICAkLmFqYXgoewogICAgICAgICAgICBtZXRob2Q6ICJQVVQiLAogICAgICAgICAgICB1cmw6IHVybCwKICAgICAgICAgICAgaGVhZGVyczogewogICAgICAgICAgICAnQXV0aG9yaXphdGlvbic6ICdCZWFyZXIgJyArIHRva2VuCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIHN1Y2Nlc3M6IGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgfSwKICAgICAgICAgICAgZmFpbDogZnVuY3Rpb24gKGpxWEhSLCB0ZXh0U3RhdHVzLCBlcnJvclRocm93bikgewogICAgICAgICAgICAgICAgY29uc29sZS5sb2coZXJyb3JUaHJvd24pOwogICAgICAgICAgICB9CiAgICAgICAgfSkKICAgICAgICAuYWx3YXlzKGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgaGFuZGxlU2F2ZWRSZXF1ZXN0cyhhcnIsIGNhbGxiYWNrKTsKICAgICAgICB9KTsKICAgIH0gZWxzZSB7CiAgICAgICAgY2FsbGJhY2soKTsKICAgIH0KfQoKCmZ1bmN0aW9uIGhhbmRsZVBsYXlsaXN0UmVxdWVzdHNXaXRoVGltZW91dChhcnIsIGNhbGxiYWNrKSB7CiAgICAgICAgc2V0VGltZW91dChmdW5jdGlvbigpIHsgY29uc29sZS5sb2coIkZhc3QgcnVubmVycyBhcmUgZGVhZCBydW5uZXJzIik7IGhhbmRsZVBsYXlsaXN0UmVxdWVzdHMoYXJyLCBjYWxsYmFjaykgfSwgY29uZi5zbG93ZG93bl9pbXBvcnQpOwp9CgpmdW5jdGlvbiBoYW5kbGVQbGF5bGlzdFJlcXVlc3RzKGFyciwgY2FsbGJhY2spIHsKICAgIHZhciB1cmwgPSBhcnIucG9wKCk7CiAgICBpZiAodXJsKSB7CiAgICAgICAgdHJhY2tTdGVwICs9IDE7ICAgCiAgICAgICAgJC5hamF4KHsKICAgICAgICAgICAgbWV0aG9kOiAiUE9TVCIsCiAgICAgICAgICAgIHVybDogdXJsLAogICAgICAgICAgICBjb250ZW50VHlwZTogJ2FwcGxpY2F0aW9uL2pzb24nLAogICAgICAgICAgICBoZWFkZXJzOiB7CiAgICAgICAgICAgICdBdXRob3JpemF0aW9uJzogJ0JlYXJlciAnICsgdG9rZW4KICAgICAgICAgICAgfSwKICAgICAgICAgICAgc3VjY2VzczogZnVuY3Rpb24ocmVzcG9uc2UpIHsgICAgICAKICAgICAgICAgICAgICAgIC8vIGNvbGxlY3Rpb25zLnBsYXlsaXN0c1tyZXNwb25zZS5uYW1lXSA9IHsKICAgICAgICAgICAgICAgIC8vICAgICBpZDogcmVzcG9uc2UuaWQsCiAgICAgICAgICAgICAgICAvLyAgICAgdXJpOiByZXNwb25zZS51cmkKICAgICAgICAgICAgICAgIC8vIH07CiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIGZhaWw6IGZ1bmN0aW9uIChqcVhIUiwgdGV4dFN0YXR1cywgZXJyb3JUaHJvd24pIHsKICAgICAgICAgICAgICAgIGNvbnNvbGUubG9nKGVycm9yVGhyb3duKTsKICAgICAgICAgICAgfQogICAgICAgIH0pCiAgICAgICAgLmFsd2F5cyhmdW5jdGlvbiAoKSB7CiAgICAgICAgICAgIGhhbmRsZVBsYXlsaXN0UmVxdWVzdHNXaXRoVGltZW91dChhcnIsIGNhbGxiYWNrKTsKICAgICAgICB9KQogICAgfSBlbHNlIHsKICAgICAgICBjYWxsYmFjaygpOwogICAgfQp9CgpmdW5jdGlvbiB1cmlJblRyYWNrcyh1cmksIHRyYWNrcywgYWRkQ2FsbGJhY2spIHsKICAgIHZhciBmb3VuZCA9IGZhbHNlOwogICAgJC5lYWNoKHRyYWNrcywgZnVuY3Rpb24gKGluZGV4LCB2YWx1ZSkgewogICAgICAgIGlmICh2YWx1ZS51cmkgPT0gdXJpKSB7CiAgICAgICAgICAgIGZvdW5kID0gdHJ1ZTsKICAgICAgICB9CiAgICB9KTsKICAgIGlmICghZm91bmQpIHsKICAgICAgICBhZGRDYWxsYmFjayh1cmkpOwogICAgfQp9CgpmdW5jdGlvbiBhZGRUb1NhdmVkKGlkKSB7CiAgICBzYXZlZFF1ZXVlLnB1c2goJ2h0dHBzOi8vYXBpLnNwb3RpZnkuY29tL3YxL21lL3RyYWNrcz9pZHM9JytpZCk7Cn0KCmZ1bmN0aW9uIGNvbXBhcmVVcmlUcmFja3MoaW1wb3J0ZWQsIHN0b3JlZCwgYWRkQ2FsbGJhY2spIHsKICAgICQuZWFjaChpbXBvcnRlZCwgZnVuY3Rpb24gKGluZGV4LCB2YWx1ZSkgewogICAgICAgIHZhciBmb3VuZCA9IGZhbHNlOwogICAgICAgICQuZWFjaChzdG9yZWQsIGZ1bmN0aW9uIChpbmRleDIsIHZhbHVlMikgewogICAgICAgICAgICBpZiAodmFsdWUudXJpID09IHZhbHVlMi51cmkpIHsKICAgICAgICAgICAgICAgIGZvdW5kID0gdHJ1ZTsKICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgICAgIGlmICghZm91bmQpIHsKICAgICAgICAgICAgYWRkQ2FsbGJhY2sodmFsdWUudXJpKTsKICAgICAgICB9CiAgICB9KTsKfQoKZnVuY3Rpb24gY29tcGFyZUlkVHJhY2tzKGltcG9ydGVkLCBzdG9yZWQsIGFkZENhbGxiYWNrKSB7CiAgICAkLmVhY2goaW1wb3J0ZWQsIGZ1bmN0aW9uIChpbmRleCwgdmFsdWUpIHsKICAgICAgICB2YXIgZm91bmQgPSBmYWxzZTsKICAgICAgICAkLmVhY2goc3RvcmVkLCBmdW5jdGlvbiAoaW5kZXgyLCB2YWx1ZTIpIHsKICAgICAgICAgICAgaWYgKHZhbHVlLmlkID09IHZhbHVlMi5pZCkgewogICAgICAgICAgICAgICAgZm91bmQgPSB0cnVlOwogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICAgICAgaWYgKCFmb3VuZCkgewogICAgICAgICAgICBhZGRDYWxsYmFjayh2YWx1ZS5pZCk7CiAgICAgICAgfQogICAgfSk7Cn0KCmZ1bmN0aW9uIGJpbmRDb250cm9scygpIHsKICAgICQoJyNidG5JbXBvcnQnKS5jbGljayhmdW5jdGlvbiAoKSB7CiAgICAgICAgJCgnI3BubEFjdGlvbicpLmhpZGUoKTsKICAgICAgICAkKCcjcG5sSW1wb3J0Jykuc2hvdygpOwogICAgfSk7CiAgICAkKCcjYnRuRXhwb3J0JykuY2xpY2soZnVuY3Rpb24gKCkgewogICAgICAgIHZhciBqc29uID0gSlNPTi5zdHJpbmdpZnkoY29sbGVjdGlvbnMpOwogICAgICAgIHZhciBkID0gbmV3IERhdGUoKTsKICAgICAgICB2YXIgdGltZSA9ICdAJyArIGQuZ2V0RnVsbFllYXIoKSArICdfJyArIChkLmdldE1vbnRoKCkgKyAxKSArICdfJyArIGQuZ2V0RGF0ZSgpOwogICAgICAgIGRvd25sb2FkKG5hbWUrdGltZSsnLmpzb24nLCBqc29uKTsKICAgIH0pOwogICAgJCgnI2ZpbGVJbXBvcnQnKS5jaGFuZ2UocmVhZEZpbGUpOwp9CgpmdW5jdGlvbiBoYW5kbGVBdXRoKGFjY2Vzc1Rva2VuKSB7CiAgICB0b2tlbiA9IGFjY2Vzc1Rva2VuOwogICAgLy8gZmV0Y2ggbXkgcHVibGljIHBsYXlsaXN0cwogICAgJC5hamF4KHsKICAgICAgICB1cmw6ICdodHRwczovL2FwaS5zcG90aWZ5LmNvbS92MS9tZScsCiAgICAgICAgaGVhZGVyczogewogICAgICAgICdBdXRob3JpemF0aW9uJzogJ0JlYXJlciAnICsgYWNjZXNzVG9rZW4KICAgICAgICB9LAogICAgICAgIHN1Y2Nlc3M6IGZ1bmN0aW9uKHJlc3BvbnNlKSB7ICAgICAgICAgCiAgICAgICAgICAgIHZhciB1c2VyX2lkID0gcmVzcG9uc2UuaWQudG9Mb3dlckNhc2UoKTsKICAgICAgICAgICAgdXNlcklkID0gdXNlcl9pZDsKICAgICAgICAgICAgbmFtZSA9IHVzZXJfaWQ7CgogICAgICAgICAgICAkKCcjdXNlck5hbWUnKS5odG1sKG5hbWUpOwogICAgICAgICAgICAkKCcjcG5sTG9nZ2VkT3V0JykuaGlkZSgpOwoKICAgICAgICAgICAgcmVmcmVzaFRyYWNrRGF0YShmdW5jdGlvbiAoKSB7ICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgJCgnI3BubEFjdGlvbicpLnNob3coKTsKICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfSk7Cn0KCmZ1bmN0aW9uIHJlZnJlc2hNeU11c2ljVHJhY2tzKGNhbGxiYWNrKSB7CiAgICBjb2xsZWN0aW9ucy5zYXZlZCA9IFtdOwogICAgcGxheWxpc3RTdGVwICs9IDE7CiAgICBsb2FkVHJhY2tDaHVua3MoJ2h0dHBzOi8vYXBpLnNwb3RpZnkuY29tL3YxL21lL3RyYWNrcycsIGNvbGxlY3Rpb25zLnNhdmVkLCBjYWxsYmFjayk7Cn0KCi8vIERFUFJFQ0FURUQKLy8gZnVuY3Rpb24gcmVmcmVzaFN0YXJyZWRUcmFja3MoY2FsbGJhY2spIHsKLy8gICAgIGNvbGxlY3Rpb25zLnN0YXJyZWQgPSBbXTsKLy8gICAgIHBsYXlsaXN0U3RlcCArPSAxOwovLyAgICAgbG9hZFN0YXJyZWQoJ2h0dHBzOi8vYXBpLnNwb3RpZnkuY29tL3YxL3VzZXJzLycgKyB1c2VySWQgKyAnL3N0YXJyZWQnLCBjb2xsZWN0aW9ucy5zdGFycmVkLCBjYWxsYmFjaykKLy8gfQoKLy8gREVQUkVDQVRFRAovLyBmdW5jdGlvbiBsb2FkU3RhcnJlZCh1cmwsIGFyciwgY2FsbGJhY2spIHsKLy8gICAgICQuYWpheCh7Ci8vICAgICAgICAgdXJsOiB1cmwsCi8vICAgICAgICAgaGVhZGVyczogewovLyAgICAgICAgICAgICAnQXV0aG9yaXphdGlvbic6ICdCZWFyZXIgJyArIHRva2VuCi8vICAgICAgICAgfSwKLy8gICAgICAgICBzdWNjZXNzOiBmdW5jdGlvbihkYXRhKSB7ICAgICAgICAgCi8vICAgICAgICAgICAgIGlmICghZGF0YSkgcmV0dXJuOwovLyAgICAgICAgICAgICBpZiAoJ3RyYWNrcycgaW4gZGF0YSkgewovLyAgICAgICAgICAgICAgICAgbG9hZFRyYWNrQ2h1bmtzKGRhdGEudHJhY2tzLmhyZWYsIGFyciwgY2FsbGJhY2spOwovLyAgICAgICAgICAgICB9IGVsc2UgewovLyAgICAgICAgICAgICAgICAgY2FsbGJhY2soKTsKLy8gICAgICAgICAgICAgfSAgICAgICAgICAgICAgICAKLy8gICAgICAgICB9Ci8vICAgICB9KTsKLy8gfQoKZnVuY3Rpb24gbG9hZFRyYWNrQ2h1bmtzV2l0aFRpbWVvdXQodXJsLCBhcnIsIGNhbGxiYWNrLCB0aW1lb3V0KSB7CiAgICAgICAgc2V0VGltZW91dChmdW5jdGlvbigpIHsgY29uc29sZS5sb2coIlRha2luZyBicmVhdGgsIG5vdCB0byBmYXN0IG15IGNoZWV0YWgiKTsgbG9hZFRyYWNrQ2h1bmtzKHVybCwgYXJyLCBjYWxsYmFjaykgfSwgY29uZi5zbG93ZG93bl9leHBvcnQpOwp9CgpmdW5jdGlvbiBsb2FkVHJhY2tDaHVua3ModXJsLCBhcnIsIGNhbGxiYWNrKSB7CiAgICAkLmFqYXgoewogICAgICAgIHVybDogdXJsLAogICAgICAgIGhlYWRlcnM6IHsKICAgICAgICAgICAgJ0F1dGhvcml6YXRpb24nOiAnQmVhcmVyICcgKyB0b2tlbgogICAgICAgIH0sCiAgICAgICAgc3VjY2VzczogZnVuY3Rpb24gKGRhdGEpIHsKICAgICAgICAgICAgaWYgKCFkYXRhKSByZXR1cm47CiAgICAgICAgICAgIGlmICgnaXRlbXMnIGluIGRhdGEpIHsKICAgICAgICAgICAgICAgICQuZWFjaChkYXRhLml0ZW1zLCBmdW5jdGlvbiAoaW5kZXgsIHZhbHVlKSB7CiAgICAgICAgICAgICAgICAgICAgaWYodmFsdWUudHJhY2sgIT09IG51bGwpewogICAgICAgICAgICAgICAgICAgICAgICBhcnIucHVzaCh7IGlkOiB2YWx1ZS50cmFjay5pZCwgdXJpOiB2YWx1ZS50cmFjay51cmkgfSk7ICAgIAogICAgICAgICAgICAgICAgICAgIH1lbHNlewogICAgICAgICAgICAgICAgICAgICAgICBjb25zb2xlLmxvZygidHJhY2sgaXMgbnVsbCIsIHZhbHVlKTsKICAgICAgICAgICAgICAgICAgICB9ICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgIH0pOwogICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgYXJyLnB1c2goeyBpZDogZGF0YS50cmFjay5pZCwgdXJpOiBkYXRhLnRyYWNrLnVyaSB9KTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoZGF0YS5uZXh0KSB7CiAgICAgICAgICAgICAgICBsb2FkVHJhY2tDaHVua3NXaXRoVGltZW91dChkYXRhLm5leHQsIGFyciwgY2FsbGJhY2spOwogICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgY2FsbGJhY2soKTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0pOwp9CgpmdW5jdGlvbiByZWZyZXNoUGxheWxpc3QoY2FsbGJhY2spIHsKICAgIGNvbGxlY3Rpb25zLnBsYXlsaXN0cyA9IHt9OwogICAgdmFyIHBsYXlsaXN0cyA9IFtdOwogICAgbG9hZFBsYXlsaXN0Q2h1bmtzKCdodHRwczovL2FwaS5zcG90aWZ5LmNvbS92MS91c2Vycy8nICsgdXNlcklkICsgJy9wbGF5bGlzdHMnLCBwbGF5bGlzdHMsIGZ1bmN0aW9uICgpIHsKICAgICAgICBoYW5kbGVQbGF5bGlzdFRyYWNrcyhwbGF5bGlzdHMsIGNvbGxlY3Rpb25zLnBsYXlsaXN0cywgY2FsbGJhY2spOwogICAgfSk7Cn0KCmZ1bmN0aW9uIGxvYWRQbGF5bGlzdENodW5rcyh1cmwsIGFyciwgY2FsbGJhY2spIHsKICAgICQuYWpheCh7CiAgICAgICAgdXJsOiB1cmwsCiAgICAgICAgaGVhZGVyczogewogICAgICAgICAgICAnQXV0aG9yaXphdGlvbic6ICdCZWFyZXIgJyArIHRva2VuCiAgICAgICAgfSwKICAgICAgICBzdWNjZXNzOiBmdW5jdGlvbiAoZGF0YSkgewogICAgICAgICAgICBpZiAoIWRhdGEpIHJldHVybjsKICAgICAgICAgICAgaWYgKCdpdGVtcycgaW4gZGF0YSkgewogICAgICAgICAgICAgICAgJC5lYWNoKGRhdGEuaXRlbXMsIGZ1bmN0aW9uIChpbmRleCwgdmFsdWUpIHsKICAgICAgICAgICAgICAgICAgICBpZiAodmFsdWUudHJhY2tzICYmIHZhbHVlLnRyYWNrcy5ocmVmKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIGFyci5wdXNoKHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5hbWU6IHZhbHVlLm5hbWUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBocmVmOiB2YWx1ZS50cmFja3MuaHJlZiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlkOiB2YWx1ZS5pZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRyYWNrczogW10KICAgICAgICAgICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICBpZiAoZGF0YS50cmFja3MgJiYgZGF0YS50cmFja3MuaHJlZikgewogICAgICAgICAgICAgICAgICAgIGFyci5wdXNoKHsKICAgICAgICAgICAgICAgICAgICAgICAgbmFtZTogZGF0YS5uYW1lLAogICAgICAgICAgICAgICAgICAgICAgICBocmVmOiBkYXRhLnRyYWNrcy5ocmVmLAogICAgICAgICAgICAgICAgICAgICAgICBpZDogdmFsdWUuaWQsCiAgICAgICAgICAgICAgICAgICAgICAgIHRyYWNrczogW10KICAgICAgICAgICAgICAgICAgICB9KTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoZGF0YS5uZXh0KSB7CiAgICAgICAgICAgICAgICBsb2FkUGxheWxpc3RDaHVua3MoZGF0YS5uZXh0LCBhcnIsIGNhbGxiYWNrKTsKICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIGNhbGxiYWNrKCk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9KTsKfQoKZnVuY3Rpb24gaGFuZGxlUGxheWxpc3RUcmFja3MoYXJyLCByZXN1bHQsIGNhbGxiYWNrKSB7CiAgICB2YXIgaXRlbSA9IGFyci5wb3AoKTsKICAgIGlmICghaXRlbSkgewogICAgICAgIHJldHVybiBjYWxsYmFjaygpOwogICAgfQogICAgcGxheWxpc3RTdGVwICs9IDE7CiAgICBpdGVtLnRyYWNrcyA9IFtdOwogICAgbG9hZFRyYWNrQ2h1bmtzKGl0ZW0uaHJlZiwgaXRlbS50cmFja3MsIGZ1bmN0aW9uICgpIHsKICAgICAgICBkZWxldGUgaXRlbS5ocmVmOwogICAgICAgIHJlc3VsdFtpdGVtLm5hbWVdID0gaXRlbTsKICAgICAgICBpZiAoYXJyLmxlbmd0aCA9PSAwKSB7CiAgICAgICAgICAgIGNhbGxiYWNrKCk7CiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgaGFuZGxlUGxheWxpc3RUcmFja3MoYXJyLCByZXN1bHQsIGNhbGxiYWNrKTsKICAgICAgICB9CiAgICB9KTsKfQoKd2luZG93Lm9ubG9hZCA9IGZ1bmN0aW9uKCkgewogICAgaWYgKG5hdmlnYXRvci51c2VyQWdlbnQuaW5kZXhPZignTVNJRScpICE9PSAtMSB8fCBuYXZpZ2F0b3IuYXBwVmVyc2lvbi5pbmRleE9mKCdUcmlkZW50LycpID4gMCkgewogICAgICAgIC8vIE1TSUUKICAgICAgICAkKCcjcG5sTG9nZ2VkT3V0JykuaHRtbCgnUGxlYXNlIHVzZSBGaXJlZm94IG9yIENocm9tZSwgZHVlIHRvIGEgYnVnIGluIEludGVybmV0IEV4cGxvcmVyJyk7CiAgICB9IGVsc2UgewogICAgICAgICQoJyNsb2dpbicpLmNsaWNrKGxvZ2luKTsKICAgICAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcigibWVzc2FnZSIsIGF1dGhDYWxsYmFjaywgZmFsc2UpOwogICAgICAgIGJpbmRDb250cm9scygpOwogICAgICAgIHJlZnJlc2hQcm9ncmVzcygpOwogICAgfQp9Cg=="></script>
+</body>
 </html>
