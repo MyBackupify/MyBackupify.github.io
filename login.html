@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-		<title>Login Window</title>
-                <script type="text/javascript" src="config.json"></script>
-		<script type='text/javascript'>//<![CDATA[ 
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Login Window</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script data-external="1" type="text/javascript" src="config.json"></script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Login Window</h1>
+</header>
 
-			var conf = config;
-
-			window.onload = function() {
-				var target = window.self === window.top ? window.opener : window.parent;
-				var hash = window.location.hash;
-				if (hash) {
-				    var token = window.location.hash.split('&')[0].split('=')[1];
-				    target.postMessage(token, conf.uri); //embedded
-				}
-			}
-		</script>
-	</head>
-	<body>
-	  
-	</body>
+<script type="text/javascript" src="data:application/javascript;base64,dmFyIGNvbmYgPSBjb25maWc7Cgp3aW5kb3cub25sb2FkID0gZnVuY3Rpb24oKSB7CiAgICB2YXIgdGFyZ2V0ID0gd2luZG93LnNlbGYgPT09IHdpbmRvdy50b3AgPyB3aW5kb3cub3BlbmVyIDogd2luZG93LnBhcmVudDsKICAgIHZhciBoYXNoID0gd2luZG93LmxvY2F0aW9uLmhhc2g7CiAgICBpZiAoaGFzaCkgewogICAgICAgIHZhciB0b2tlbiA9IHdpbmRvdy5sb2NhdGlvbi5oYXNoLnNwbGl0KCcmJylbMF0uc3BsaXQoJz0nKVsxXTsKICAgICAgICB0YXJnZXQucG9zdE1lc3NhZ2UodG9rZW4sIGNvbmYudXJpKTsgLy9lbWJlZGRlZAogICAgfQp9Cg=="></script>
+</body>
 </html>
-
-
