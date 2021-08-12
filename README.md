@@ -11,6 +11,7 @@ You can use it at <https://spotmybackup.github.io> or on your own webserver (see
 The following Q&A is copied directly from <https://github.com/secuvera/SpotMyBackup/wiki>.
 
 ## Q&A
+
 _Q: Are there any limitations?_
 
 A: Yes. The Web-API let's you backup the "starred" playlist. But it does not support starred playlists to be filled with tracks in the current state (see https://developer.spotify.com/web-api/get-list-users-playlists/#comment-1701224747). Therefore your starred playlist will be named "importedStarred". In Spotify you can mark all tracks and add them to the Spotify starred playlist. Et voilà.
