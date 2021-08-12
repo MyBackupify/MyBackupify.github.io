@@ -8,7 +8,7 @@ In consequence, no credentials or data is stored or processed on the Webserver i
 
 You can use it at <https://mybackupify.github.io> or on your own webserver (see Q&A).
 
-The following Q&A is copied directly from <https://github.com/secuvera/MyBackupify/wiki>.
+The following Q&A is copied directly from <https://github.com/secuvera/SpotMyBackup/wiki>.
 
 ## Q&A
 
