@@ -1,6 +1,6 @@
 config = {
-"uri":"https://ickc.github.io/SpotMyBackup/",
-"redirect_uri":"https://ickc.github.io/SpotMyBackup/login.html",
+"uri":"https://spotmybackup.github.io/",
+"redirect_uri":"https://spotmybackup.github.io/login.html",
 "client_id":"d22a8316f27b4ebe8484adefd2f0774d",
 "slowdown_import": 100,
 "slowdown_export": 100
