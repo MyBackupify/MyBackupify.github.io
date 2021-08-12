@@ -1,7 +1,7 @@
 config = {
 "uri":"https://mybackupify.github.io",
 "redirect_uri":"https://mybackupify.github.io/login.html",
-"client_id":"d22a8316f27b4ebe8484adefd2f0774d",
+"client_id":"93140eb374584ed895b3d4925967ec7b",
 "slowdown_import": 100,
 "slowdown_export": 100
 };
