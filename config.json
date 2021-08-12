@@ -1,6 +1,6 @@
 config = {
-"uri":"https://spotmybackup.github.io",
-"redirect_uri":"https://spotmybackup.github.io/login.html",
+"uri":"https://mybackupify.github.io",
+"redirect_uri":"https://mybackupify.github.io/login.html",
 "client_id":"d22a8316f27b4ebe8484adefd2f0774d",
 "slowdown_import": 100,
 "slowdown_export": 100

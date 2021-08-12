@@ -1,5 +1,5 @@
 ---
-title: SpotMyBackup
+title: MyBackupify
 header-includes: |
     <script data-external="1" type="text/javascript" src="config.json"></script>
     <script data-external="1" type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>

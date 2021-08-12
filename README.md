@@ -1,4 +1,4 @@
-# SpotMyBackup
+# MyBackupify
 
 Backup and Restore your Spotify Playlists and "My Music".
 
@@ -6,9 +6,9 @@ This javascript based app allows you to backup all your playlists and import the
 
 In consequence, no credentials or data is stored or processed on the Webserver itself.
 
-You can use it at <https://spotmybackup.github.io> or on your own webserver (see Q&A).
+You can use it at <https://mybackupify.github.io> or on your own webserver (see Q&A).
 
-The following Q&A is copied directly from <https://github.com/secuvera/SpotMyBackup/wiki>.
+The following Q&A is copied directly from <https://github.com/secuvera/MyBackupify/wiki>.
 
 ## Q&A
 
@@ -18,7 +18,7 @@ A: Yes. The Web-API let's you backup the "starred" playlist. But it does not sup
 
 _Q: I closed my browser during importing the backup. Can I restart?_
 
-A: Just do as you did before. SpotMyBackup will only import missing items. Be sure to always start in a clean browser session.
+A: Just do as you did before. MyBackupify will only import missing items. Be sure to always start in a clean browser session.
 
 _Q: Is any information stored on the webserver?_
 
@@ -42,7 +42,7 @@ A: Yes. Every track is one HTTP-Request to the API. All requests are sent one af
 
 _Q: Who would need this?_
 
-A: There are several reasons why you want to move your Spotify Data from one account to another. For example we have Premium Accounts via our Mobile Serviceprovider. If you want to move to another provider having the same Spotify Account, it's getting really time consuming. Thanks to SpotMyBackup we just use a new Account.
+A: There are several reasons why you want to move your Spotify Data from one account to another. For example we have Premium Accounts via our Mobile Serviceprovider. If you want to move to another provider having the same Spotify Account, it's getting really time consuming. Thanks to MyBackupify we just use a new Account.
 
 _Q: I'm missing something!_
 
