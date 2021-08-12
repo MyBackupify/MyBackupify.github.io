@@ -1,5 +1,5 @@
 config = {
-"uri":"https://spotmybackup.github.io/",
+"uri":"https://spotmybackup.github.io",
 "redirect_uri":"https://spotmybackup.github.io/login.html",
 "client_id":"d22a8316f27b4ebe8484adefd2f0774d",
 "slowdown_import": 100,
