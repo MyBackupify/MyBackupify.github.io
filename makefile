@@ -1,7 +1,7 @@
-all: index.html login.html
+all: docs/index.html docs/login.html
 
-index.html: index.md smb.css smb.js
+docs/index.html: index.md smb.css smb.js
 	pandoc --self-contained -s -o $@ $< --css $(word 2,$^)
 
-login.html: login.md login.js
+docs/login.html: login.md login.js
 	pandoc --self-contained -s -o $@ $< -M document-css=false
